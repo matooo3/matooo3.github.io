@@ -1,0 +1,129 @@
+body {
+    font-family: 'Arial', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #333; /* Dunkler Hintergrund */
+    color: white; /* Helle Schrift */
+    background: linear-gradient(to top, #333, #862020);
+}
+
+@keyframes colorChange {
+    from { background-color: #071b31; }
+    to { background-color: #1c3344; }
+}
+
+@keyframes rainbow {
+    0% {
+        color: red;
+    }
+    25% {
+        color: orange;
+    }
+    50% {
+        color: yellow;
+    }
+    75% {
+        color: green;
+    }
+    100% {
+        color: blue;
+    }
+}
+
+  
+
+header, nav, section, footer {
+    margin: 20px;
+}
+
+header, nav, footer {
+    box-shadow: 0 2px 5px rgb(204, 147, 147);
+    border-radius: 8px;
+}
+
+header {
+    /*background-color: #2C3E50;*/
+    color: white;
+    padding: 10px;
+    text-align: center;
+    /* background: linear-gradient(to right, #071b31, #1c3344)*/
+    animation: colorChange 2s infinite alternate;
+}
+
+nav {
+    background-color: #ECF0F1;
+    padding: 10px;
+    background: linear-gradient(to left, #495b70, #1d5c8b);
+}
+
+nav ul {
+    list-style: none;
+    padding: 0;
+    display: flex;
+}
+
+nav li {
+    margin-right: 20px;
+}
+
+nav a {
+    text-decoration: none;
+    color: #e1ebf7;
+    font-weight: bold;
+    padding: 8px 16px; /* Innerer Abstand oben/unten 8px, seitlich 16px */
+    background-color: #1f73b3; /* Hintergrundfarbe */
+    border-radius: 5px; /* Abrundung der Ecken */
+    transition: background-color 0.3s ease; /* Animiere die Hintergrundfarbe beim Überfahren */
+}
+nav a:hover {
+    /*color: #441111; /* Ändere dies zu einer Akzentfarbe deiner Wahl */
+    animation: rainbow 5s infinite alternate-reverse;
+}
+section {
+    margin-top: 40px;
+    box-shadow: 0 0 30px rgba(253, 245, 245, 0.2); /* Anpassen, um die Intensität zu ändern */
+    padding: 20px;
+}
+
+.link {
+    color: #519dd8;
+    text-decoration: none;
+}
+.link:visited {
+    color: rgb(255, 0, 255);
+}
+.link:hover {
+    color: rgb(4, 247, 4);
+}
+
+.button {
+    padding: 0.8rem 1.6rem;
+    border-radius: 1rem;
+    border: none;
+    color:#333;
+    margin-right: 0.8rem;
+    margin-top: 0.8rem;
+    font-size: 1.3rem;
+    font-family: sans-serif;
+}
+
+.button:hover{
+    background-color: #1c3344;
+    color: white;
+    cursor: pointer;
+    animation: colorChange 1s infinite alternate;
+}
+
+footer {
+    margin-top: 40px;
+    /*background-color: #2C3E50;*/
+    color: white;
+    padding: 10px;
+    text-align: center;
+    /*background: linear-gradient(to right, #071b31, #1c3344);*/
+    animation: colorChange 2s infinite alternate;
+}
+
+#fun:hover {
+    animation: rainbow 0.1s infinite alternate-reverse;
+}
