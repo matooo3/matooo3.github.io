@@ -1,0 +1,98 @@
+body {
+    background-color: rgb(41, 38, 38);
+}
+
+h2{
+    color:aliceblue;
+    font-family: sans-serif;
+    margin-bottom: 3.5rem;
+}
+
+h3{
+    color:aliceblue;
+    font-family: sans-serif;
+}
+
+.center {
+    display: flex;
+    justify-content: center;
+}
+
+.centerLeft{
+    display: flex;
+    margin-left: 3rem;
+}
+
+.marginTop {
+    margin-top: 7.5rem;
+}
+
+.timer {
+    margin-top: 2rem;
+    color: aliceblue;
+    font-size: 4rem;
+    font-family: sans-serif;
+}
+
+.counter {
+    margin-top: 5rem;
+    color: aliceblue;
+    font-size: 7.5rem;
+    font-family: sans-serif;
+}
+
+.button {
+    font-size: 1.4rem;
+    margin-top: 2rem;
+    margin-left: 0.5rem;
+    margin-right: 0.5rem;
+    cursor:pointer;
+    padding: 0.7rem 2.1rem;
+    border-radius: 0.5rem;
+    border: none;
+}
+
+.buttonSmall{
+    font-size: 1.2rem;
+    margin-left: 0.5rem;
+    margin-right: 0.5rem;
+    cursor:pointer;
+    padding: 0.5rem 1.5rem;
+    border-radius: 0.5rem;
+    border: none;
+}
+.buttonSmall:hover{
+    color: aliceblue;
+    background-color: blueviolet;
+    border-radius: 2rem;
+}
+
+.neg:hover{
+    background-color: red;
+}
+
+.pos:hover{
+    background-color: green;
+}
+
+#reset{
+    margin-left: 0.3rem;
+    margin-right: 0.3rem;
+    font-size: 1rem;
+    cursor:pointer;
+    padding: 0.5rem 0.5rem;
+    border-radius: 0.5rem;
+    border: none;
+}
+
+#reset:hover{
+    background-color: blueviolet;
+}
+
+
+#settings-button {
+    display: flex;
+    margin-top: 10px;
+    cursor: pointer;
+    padding: 0.5rem 0.5rem;
+}

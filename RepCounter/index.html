@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rep Counter (by MV)</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="script.js"></script>
+    <link rel="icon" href="img/heart.png" type="image/png">
+
+</head>
+<body>
+    <!-- SETTING -->
+    <a href="settings.html" id="settings-button" class="centerLeft">
+        <img src="img/settings.png" width="34">
+    </a>
+
+    <!-- Timer -->
+    <div class="center timer" id="timee">00 : 00</div>
+    <!-- Buttons -->
+    <div class="center">
+        <button  class="button pos" onclick="startTimer()">Start</button>
+        <button  class="button neg" onclick="stopTimer()">Stop</button> 
+    </div>
+
+    <!-- Counter -->    
+    <div class="center  counter" id="reps">0</div>
+
+    <!-- Buttons --> 
+    <div class="center">
+        <button class="button neg" onclick="dec(1)">- 1</button>
+        <button class="button pos" onclick="inc(1)">+ 1</button>
+    </div>
+    <div class="center">
+        <button class="button neg" onclick="dec(5)">- 5</button>
+        <button class="button pos" onclick="inc(5)">+ 5</button>
+    </div>
+
+    <div class="center marginTop">
+        <button id="reset" onclick="resetTimer()">Reset Timer</button>
+        <button id="reset" onclick="resetCounter()">Reset Counter</button>
+    </div>
+
+</body>
+</html>
