@@ -1,3 +1,7 @@
+html {
+    scroll-behavior: smooth;
+}
+
 body {
     font-family: 'Arial', sans-serif;
     margin: 0;
@@ -42,7 +46,6 @@ header, nav, footer {
 }
 
 header {
-    /*background-color: #2C3E50;*/
     color: white;
     padding: 10px;
     text-align: center;
@@ -52,7 +55,7 @@ header {
 
 nav {
     background-color: #ECF0F1;
-    padding: 10px;
+    padding: 0.01rem;
     background: linear-gradient(to left, #495b70, #1d5c8b);
 }
 
@@ -60,10 +63,11 @@ nav ul {
     list-style: none;
     padding: 0;
     display: flex;
+    flex-wrap: wrap;
 }
 
 nav li {
-    margin-right: 20px;
+    margin: 0.7rem 0.5rem 0.7rem 0.5rem;
 }
 
 nav a {
@@ -79,6 +83,7 @@ nav a:hover {
     /*color: #441111; /* Ändere dies zu einer Akzentfarbe deiner Wahl */
     animation: rainbow 5s infinite alternate-reverse;
 }
+
 section {
     margin-top: 40px;
     box-shadow: 0 0 30px rgba(253, 245, 245, 0.2); /* Anpassen, um die Intensität zu ändern */
