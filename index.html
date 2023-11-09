@@ -13,16 +13,26 @@
         <p>Fitness | CS Student | Paramedic</p>
     </header>
 
-    <nav>
-        <ul>
-            <li><a href="#about-me">About me</a></li>
-            <li><a href="#private-projects">Private Projects</a></li>
-            <li><a href="#uni-links">Uni Links</a></li>
-            <li><a href="#contact">Contact</a></li>
-            <li><a href="#other">Other</a></li>
-            <li><a href="#fun" id="fun">Fun</a></li>
-        </ul>
-    </nav>
+    <nav id="nav">
+        <div class="visible">
+            <button id="open-nav" onclick="openNav()">v</button>
+            <button id="close-nav" onclick="closeNav()">^</button>
+        </div>
+        <div class="invisible">
+            <ul>
+                <li><a href="#about-me">About me</a></li>
+                <li><a href="#private-projects">Private Projects</a></li>
+                <li><a href="#uni-links">Uni Links</a></li>
+                <li><a href="#contact">Contact</a></li>
+                <li><a href="#other">Other</a></li>
+                <li><a href="#fun" id="fun">Fun</a></li>
+            </ul>
+        </div>
+        
+    </nav> 
+      
+
+      
 
     <section id="about-me">
         <h2>About me</h2>
@@ -84,5 +94,6 @@
         <p>&copy; 2023 Matooo | Web Developer</p>
     </footer>
 
+    <script src="script.js"></script>
 </body>
 </html>

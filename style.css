@@ -8,12 +8,31 @@ body {
     padding: 0;
     background-color: #333; /* Dunkler Hintergrund */
     color: white; /* Helle Schrift */
-    background: linear-gradient(to top, #333, #862020);
+    background: linear-gradient(to top, #333, #5d2a2aff);
 }
+
+.navbar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 50%;
+    height: 100%;
+    background-color: #ffffff;
+    transition: all 0.5s ease-in-out;
+  }
+  
+  .navbar.open {
+    left: 50%;
+  }
+  
 
 @keyframes colorChange {
     from { background-color: #071b31; }
     to { background-color: #1c3344; }
+}
+@keyframes colorChange2 {
+    from { background-color: #1c3344; }
+    to { background-color: #071b31; }
 }
 
 @keyframes rainbow {
@@ -53,13 +72,21 @@ header {
     animation: colorChange 2s infinite alternate;
 }
 
+.invisible {
+    display: none; /*dont show navbar if reloading page*/
+}
 nav {
     background-color: #ECF0F1;
     padding: 0.01rem;
-    background: linear-gradient(to left, #495b70, #1d5c8b);
+    /*background: linear-gradient(to left, #495b70, #1d5c8b);*/
+    animation: colorChange2 2s infinite alternate;
+    position: sticky;
+    top: 2px;
+    
 }
 
 nav ul {
+    margin: 0.25rem;
     list-style: none;
     padding: 0;
     display: flex;
@@ -67,7 +94,7 @@ nav ul {
 }
 
 nav li {
-    margin: 0.7rem 0.5rem 0.7rem 0.5rem;
+    margin: 0.7rem 0.4rem 0.7rem 0.4rem;
 }
 
 nav a {
@@ -75,13 +102,33 @@ nav a {
     color: #e1ebf7;
     font-weight: bold;
     padding: 8px 16px; /* Innerer Abstand oben/unten 8px, seitlich 16px */
-    background-color: #1f73b3; /* Hintergrundfarbe */
+    /*background-color: #1f73b3;*/ /* Hintergrundfarbe */
     border-radius: 5px; /* Abrundung der Ecken */
+    animation: colorChange 2s infinite alternate;
     transition: background-color 0.3s ease; /* Animiere die Hintergrundfarbe beim Überfahren */
 }
 nav a:hover {
     /*color: #441111; /* Ändere dies zu einer Akzentfarbe deiner Wahl */
     animation: rainbow 5s infinite alternate-reverse;
+}
+
+.visible {
+    display: flex;
+    justify-content: space-between;
+    background-color: inherit;
+    border: 0.5 solid rgba(0, 0, 0, 0.2);
+    border-radius: 16px;
+    font-family: inherit;
+    color: inherit;
+    font-size: inherit;
+    font-weight: inherit;
+    animation: colorChange 2s infinite alternate;
+}
+#close-nav, #open-nav {
+    border-radius: 8px;
+    border: none;
+    margin: 2px;
+
 }
 
 section {
