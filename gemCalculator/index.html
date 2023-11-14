@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gem calculator (by matooo)</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="img/gem.png" type="image/png">
+</head>
+<body>
+    <h2>Please enter Information:</h2>
+    <div class="input-container">
+        <div class="item1">
+            <h3>Item 1:</h3>
+            <label for="cost1"></label>
+            <input type="number" name="cost1" id="cost1" placeholder="Gems">
+            <label for="multiplicator1"></label>
+            <input type="number" name="multiplicator1" id="multiplicator1" placeholder="Multiplicator">
+            <label for="duration1"></label>
+            <input type="number" name="duration1" id="duration1" placeholder="Duration">
+            <label for="workers1"></label>
+            <input type="number" name="workers1" id="workers1" placeholder="Workers">
+        </div>
+        <div class="item2">
+            <h3>Item 2:</h3>
+            <label for="cost2"></label>
+            <input type="number" name="cost2" id="cost2" placeholder="Gems">
+            <label for="multiplicator2"></label>
+            <input type="number" name="multiplicator2" id="multiplicator2" placeholder="Mult. (Book = hours)">
+            <label for="duration2"></label>
+            <input type="number" name="duration2" id="duration2" placeholder="Duration">
+            <label for="workers2"></label>
+            <input type="number" name="workers2" id="workers2" placeholder="Workers">
+        </div>
+        <div><button type="button" onclick="calcResult()">Calculate</button></div>
+    </div>
+    <div class="screen-container">
+        <div class="box3">
+            <h3>Item 1:</h3>
+            <div id="result1">Cost: 0 (Gems per hour)</div>
+            <div id="result1SameCostTime"></div>
+            <h3>Item 2:</h3>
+            <div id="result2">Cost: 0 (Gems per hour)</div>
+            <div id="result2SameCostTime"></div>
+        </div>
+        <h2>So the better Item is: </h2>
+        <div id="result3">=> Please enter something </div>
+    </div>
+
+
+    <script src="script.js"></script>
+</body>
+</html>
