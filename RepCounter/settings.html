@@ -3,34 +3,41 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <link rel="stylesheet" href="style.css">
-    <script src="script.js"></script>
+    <title>Settings</title>
+    <link id="theme-style" rel="stylesheet" href="style.css">
     <link rel="icon" href="img/heart.png" type="image/png">
 </head>
-<body>
+<body onload="loadSettings()">
+    <audio id="clickAudio">
+        <source src="audio/click.mp3" type="audio/mp3">
+        Your browser does not support the audio element.
+    </audio>
     <a href="index.html">
         <img src="img/back.png" width="40rem" class="centerLeft" id="settings-button">
     </a>
     <h2 class="center">Settings</h2>
     <h3 class="center">Sounds:</h3>
     <div class="center">
-        <button class="buttonSmall">Off</button>
-        <button class="buttonSmall">On</button>
+        <button id="soundOff" onclick="multipleFunctions([playClickAudio, soundOff, lockButton(this, 'soundOn')])" class="buttonSmall">Off</button>
+        <button id="soundOn" onclick="multipleFunctions([playClickAudio, soundOn, lockButton(this, 'soundOff')])" class="buttonSmall">On</button>
     </div>
     
     <h3 class="center">Theme:</h3>
     <div class="center">
-        <button class="buttonSmall">Light</button>
-        <button class="buttonSmall">Dark</button>
+        <button id="lightTheme" onclick="multipleFunctions([playClickAudio, applyLightTheme, lockButton(this, 'darkTheme')])" class="buttonSmall">Light</button>
+        <button id="darkTheme" onclick="multipleFunctions([playClickAudio, applyDarkTheme, lockButton(this, 'lightTheme')])" class="buttonSmall">Dark</button>
     </div>
     <h3 class="center">Information:</h3>
     <div class="center">
-        <a href="https://matooo.000webhostapp.com/">
+        <a href="https://matooo3.github.io/">
             <button class="buttonSmall">Website</button>
         </a>
         
     </div>
     
+    <script src="scripts/script.js"></script>
+    <script src="scripts/theme.js"></script>
+    <script src="scripts/storage.js"></script>
+    <script src="scripts/lockButton.js"></script>
 </body>
 </html>
