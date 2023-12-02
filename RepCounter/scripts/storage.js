@@ -16,24 +16,26 @@ function saveSettings() {
 
 }
 
-
-
 // main load-function:
 function loadSettings() {
     // load Settings-Menu:
-    soundIsOn = localStorage.getItem('sound') === 'true';
-    theme = localStorage.getItem('theme');
+    loadSound();
     loadTheme();
     loadLockedButtons();
     // loadTimerData(); #TODO (still Bugging)
     loadCounterData();
 }
 
+function loadSound() {
+    soundIsOn = !(localStorage.getItem('sound') === 'false'); //default setting NaN => sound On
+}
+
 function loadTheme() {
-    if(theme === "dark") {
-        applyDarkTheme();
-    } else {
+    theme = localStorage.getItem('theme');
+    if(theme === "light") {
         applyLightTheme();
+    } else {
+        applyDarkTheme(); // if == dark or NaN => default is dark mode
     }
 }
 
@@ -63,5 +65,8 @@ function loadLockedButtons(){
 
 function loadCounterData() {
     counter = parseInt(localStorage.getItem('counter'));
+    if(isNaN(counter)) {
+        counter = 0;
+    }
     reps.innerHTML = counter; 
 }
