@@ -24,10 +24,4 @@ function applyLightTheme() {
     saveSettings();
 }
 
-function loadTheme() {
-    if(theme === "dark") {
-        applyDarkTheme();
-    } else {
-        applyLightTheme();
-    }
-}
+// loadTheme() moved to storage.js

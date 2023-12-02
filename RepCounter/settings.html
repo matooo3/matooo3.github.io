@@ -18,8 +18,8 @@
     <h2 class="center">Settings</h2>
     <h3 class="center">Sounds:</h3>
     <div class="center">
-        <button id="soundOff" onclick="multipleFunctions([playClickAudio, soundOff, lockButton(this, 'soundOn')])" class="buttonSmall">Off</button>
-        <button id="soundOn" onclick="multipleFunctions([playClickAudio, soundOn, lockButton(this, 'soundOff')])" class="buttonSmall">On</button>
+        <button id="soundOff" onclick="multipleFunctions([soundOff, playClickAudio, lockButton(this, 'soundOn')])" class="buttonSmall">Off</button>
+        <button id="soundOn" onclick="multipleFunctions([soundOn, playClickAudio, lockButton(this, 'soundOff')])" class="buttonSmall">On</button>
     </div>
     
     <h3 class="center">Theme:</h3>
@@ -35,9 +35,9 @@
         
     </div>
     
+    <script src="scripts/storage.js"></script>
     <script src="scripts/script.js"></script>
     <script src="scripts/theme.js"></script>
-    <script src="scripts/storage.js"></script>
     <script src="scripts/lockButton.js"></script>
 </body>
 </html>

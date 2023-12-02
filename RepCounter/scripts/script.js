@@ -1,9 +1,14 @@
 let counter = 0;
 
+document.addEventListener('DOMContentLoaded', function() {
+    loadCounterData();
+});
+
 function inc(times) {
     playClickAudio();
     counter = counter + times;
-    reps.innerHTML = counter; 
+    reps.innerHTML = counter;
+    saveSettings();
 }
 
 function dec(times) {
@@ -13,12 +18,14 @@ function dec(times) {
         
         reps.innerHTML = counter;
     }
+    saveSettings();
 }
 
 function resetCounter(){
     playClickAudio();
     counter = 0;
     reps.innerHTML = counter;
+    saveSettings();
 }
 
 // TIMER ------
