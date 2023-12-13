@@ -1,0 +1,16 @@
+{
+    "name": "Card Manager",
+    "short_name": "Card Manager",
+    "theme_color": "#333333",
+    "background_color": "#333333",
+    "display": "fullscreen",
+    "scope": "/",
+    "start_url": "/index.html",
+    "icons": [
+        {
+        "src": "/img/icons/card.png",
+        "sizes": "512x512",
+        "type": "image/png"
+        }
+  ]
+  }
