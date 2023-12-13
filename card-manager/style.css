@@ -1,0 +1,83 @@
+* {
+    padding: 0;
+    margin: 0;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: #333;
+    color: white;
+    font-family: sans-serif;
+    margin-left: 1rem;
+    margin-right: 1rem;
+}
+
+#list-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.3rem;
+}
+
+h1 {
+    font-size: 1.5rem;
+    margin-top: 3%;
+}
+
+ul {
+    list-style: none;
+}
+
+li {
+    
+}
+
+.sectionDiv {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+}
+
+.sectionDiv button {
+    background-color: rgb(126, 42, 143);
+    padding: 15px;
+    border-radius: 32px;
+    font-family: inherit;
+    border: none;
+}
+
+.sectionDiv input {
+    padding: 7px;
+    border-radius: 32px;
+    font-family: inherit;
+    border: none;
+}
+
+#saveButton {
+    color: white;
+    font-family: inherit;
+    cursor: pointer;
+}
+#saveButton:active, #new-card-button:active {
+    background-color: green;
+}
+
+#new-card-button {
+    background-color: rgb(195, 33, 228);
+    padding: 10px 20px;
+    border-radius: 16px;
+    font-family: inherit;
+    border: none;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 4px 4px 4px -2px rgba(255, 230, 0, 0.661); /* x, y, blur, spread, color*/
+    position: absolute;
+    bottom: 4rem;
+    right: 2rem;
+}
+
+.new-card-button {
+    align-items: end;
+}
