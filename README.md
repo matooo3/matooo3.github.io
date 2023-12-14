@@ -4,12 +4,26 @@ my Website:
 
 ## Add new Changes:
 
-My skills: 
-- [X] html
+**My skills:** 
+- [x] html
 - [x] css
-- [ ] javaScript
-- [ ] json manifest
+- [x] javaScript
+- [x] json manifest
 - [ ] React
-- [ ] Angular
 - [ ] node.js
+- [ ] Angular
 - [ ] mySQL
+
+**other skills:**
+- [x] python
+- [x] java
+- [x] Scala
+- [x] C#
+- [x] unity
+- [x] Racket
+- [ ] Lua
+
+**Tools:**
+- [x] Git
+- [x] GitHub
+- [x] discord   
