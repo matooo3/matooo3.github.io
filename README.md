@@ -26,4 +26,10 @@ my Website:
 **Tools:**
 - [x] Git
 - [x] GitHub
-- [x] discord   
+- [x] discord
+- [x] Visual Studio
+- [x] Visual Studio Code
+- [x] Eclipse
+- [x] Todoist 
+- [ ] Blender
+
