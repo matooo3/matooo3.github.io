@@ -5,7 +5,7 @@
     "background_color": "#333333",
     "display": "fullscreen",
     "scope": "/",
-    "start_url": "/index.html",
+    "start_url": "/card-manager/index.html",
     "icons": [
         {
         "src": "/img/icons/card.png",
