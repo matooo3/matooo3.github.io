@@ -35,17 +35,36 @@ li {
 }
 
 .sectionDiv {
+    position: relative;
     display: flex;
     flex-direction: column;
     gap: 0.3rem;
 }
 
-.sectionDiv button {
+#saveButton {
     background-color: rgb(126, 42, 143);
+    color: white;
     padding: 15px;
     border-radius: 32px;
     font-family: inherit;
     border: none;
+    font-family: inherit;
+    cursor: pointer;
+}
+#saveButton:active, #deleteButton:active, #new-card-button:active {
+    background-color: green;
+}
+
+.deleteButton {
+    background-color: rgb(126, 42, 143);
+    position: absolute;
+    right: 0;
+    top: 0;
+    padding: 5px;
+    border-radius: 32px;
+    font-family: inherit;
+    border: none;
+    cursor: pointer;
 }
 
 .sectionDiv input {
@@ -53,15 +72,6 @@ li {
     border-radius: 32px;
     font-family: inherit;
     border: none;
-}
-
-#saveButton {
-    color: white;
-    font-family: inherit;
-    cursor: pointer;
-}
-#saveButton:active, #new-card-button:active {
-    background-color: green;
 }
 
 #new-card-button {
@@ -80,4 +90,17 @@ li {
 
 .new-card-button {
     align-items: end;
+}
+
+#clear-LS {
+    background-color: rgb(195, 33, 228);
+    padding: 10px 20px;
+    border-radius: 16px;
+    font-family: inherit;
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
+    position: fixed;
+    bottom: 4rem;
+    left: 2rem;
 }

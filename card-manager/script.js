@@ -1,7 +1,10 @@
 // global variable, to tell if addNewSection is allowed or if it is avtive already.
 active = false;
-localStorage.clear(); // #TODO FIX initial clear
 
+// clear LS
+function clearLS() {
+    localStorage.clear();
+}
 
 function addNewSection() {
     if (active) {
@@ -28,6 +31,7 @@ function addNewLiDivElement (cardList, sectionId) {
     const listItem = document.createElement("li");
     const sectionDiv = document.createElement("div");
     sectionDiv.id = sectionId;
+    sectionDiv.className = sectionDiv;
     sectionDiv.classList.add("sectionDiv"); // for .css
 
     listItem.appendChild(sectionDiv);
@@ -65,8 +69,32 @@ function addSaveButton(sectionDiv) {
     saveButton.id = "saveButton";
     saveButton.addEventListener("click", function() {
         saveSection(sectionDiv);
+        addDeleteButton(sectionDiv);
+        // addEditButton();
+        saveData();
     })
     sectionDiv.appendChild(saveButton)
+}
+
+function addDeleteButton(sectionDiv) {
+    const deleteButton = document.createElement("button");
+    deleteButton.innerHTML = "delete";
+    deleteButton.className = "deleteButton";
+    addDeleteButtonListener(sectionDiv, deleteButton);
+    sectionDiv.appendChild(deleteButton);
+}
+
+function addDeleteButtonListener(sectionDiv, deleteButton) {
+    deleteButton.addEventListener("click", function() {
+        deleteSectionFromLS(sectionDiv);
+        sectionDiv.remove();
+        saveData();
+    })
+}
+
+function deleteSectionFromLS(sectionDiv) {
+    localStorage.removeItem("src:"+sectionDiv.id);
+    localStorage.removeItem("name:"+sectionDiv.id);
 }
 
 function saveSection(sectionDiv) {
@@ -81,7 +109,6 @@ function saveSection(sectionDiv) {
     loadSectionNameFromLS(sectionDiv);
     loadSectionImagesFromLS(sectionDiv);
     scaleImg(sectionDiv);
-    
 }
 
 function saveSectionName(sectionDiv) {
@@ -138,6 +165,31 @@ function loadSectionImagesFromLS(sectionDiv) {
     img.id = "img:"+sectionDiv.id;
     sectionDiv.appendChild(img);
 }
+
+function saveData() {
+    const data = document.getElementById("card-list").outerHTML;
+    localStorage.setItem("userData", data);
+}
+
+function loadData() {
+    const data = localStorage.getItem("userData");
+    if (data) {
+        document.getElementById("card-list").outerHTML = data;
+    }
+    addEventListenerToAllDeleteButtons();
+}
+
+// this is needed, because if you load the code data of LocalStorage
+// then the event listener is gone! #TODO maybe there is a better way
+function addEventListenerToAllDeleteButtons() {
+    var sectionDivs = document.querySelectorAll(".sectionDiv");
+
+    sectionDivs.forEach(function(sectionDiv) {
+        const deleteButton = sectionDiv.querySelector(".deleteButton");
+        addDeleteButtonListener(sectionDiv, deleteButton);
+    })
+}
+
 
 // function deleteSectionId(sectionDiv) {
 //     // Remove the whole section with the given ID

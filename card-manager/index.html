@@ -8,15 +8,19 @@
     <link rel="stylesheet" href="style.css"></link>
     <link rel="manifest" href="manifest.json">
 </head>
-<body>
+<body onload="loadData()">
     
     <div id="list-container">
         <h1>Card-Manager</h1>
         <ul id="card-list">
+            <!-- ... -->
+            <!-- Here are the Cards of the User -->
+            <!-- ... -->
         </ul>
         <div>
             <button id="new-card-button" onclick="addNewSection()">+</button>
         </div>
+        <button id="clear-LS" onclick="clearLS()">Clear LS</button>
     </div>
 
 </body>
