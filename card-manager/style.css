@@ -3,6 +3,12 @@
     margin: 0;
 }
 
+:root {
+    --button-color: #252525;
+    --font-color: #fff;
+    --border-color: rgba(120, 2, 199, 0.952);
+}
+
 body {
     display: flex;
     flex-direction: column;
@@ -23,7 +29,7 @@ body {
 
 h1 {
     font-size: 1.5rem;
-    margin-top: 3%;
+    margin-top: 6%;
 }
 
 ul {
@@ -31,7 +37,7 @@ ul {
 }
 
 li {
-    
+    margin: 20px;
 }
 
 .sectionDiv {
@@ -39,8 +45,36 @@ li {
     display: flex;
     flex-direction: column;
     gap: 0.3rem;
+    justify-content: center;
+    align-items: center;
+    border: 2px solid #ffffff;
+    border-radius: 6px;
+    padding: 16px;
+}
+.imageInput {
+    cursor: pointer;
+}
+.imageInput::-webkit-file-upload-button {
+    background-color: var(--button-color);
+    border: 1px solid var(--border-color);
+    color: var(--font-color);
+    content: "click";
+    border-radius: 32px;
+    cursor: pointer;
+}
+.imageInput:active::-webkit-file-upload-button {
+    background-color: #333;
+}
+.imageInputLabel {
+    background: linear-gradient(top, #f9f9f9, #e3e3e3);
+    border: 1px solid #999;
+    border-radius: 3px;
+    padding: 5px 8px;
+    font-weight: 700;
+    font-size: 10pt;
 }
 
+/* DELETE ? #TODO*/
 #saveButton {
     background-color: rgb(126, 42, 143);
     color: white;
@@ -51,12 +85,13 @@ li {
     font-family: inherit;
     cursor: pointer;
 }
-#saveButton:active, #deleteButton:active, #new-card-button:active {
-    background-color: green;
+#saveButton:active:after, #deleteButton:active, #new-card-button:active, #clear-LS:active {
+    background-color: var(--border-color);
 }
 
 .deleteButton {
-    background-color: rgb(126, 42, 143);
+    background-color: rgba(185, 7, 7, 0.77);
+    color: var(--font-color);
     position: absolute;
     right: 0;
     top: 0;
@@ -65,42 +100,115 @@ li {
     font-family: inherit;
     border: none;
     cursor: pointer;
+    padding: 4px 8px;
 }
 
-.sectionDiv input {
+.sectionIdInput {
     padding: 7px;
     border-radius: 32px;
     font-family: inherit;
     border: none;
+    text-align: center;
 }
 
 #new-card-button {
-    background-color: rgb(195, 33, 228);
+    background-color: var(--button-color);
+    color: var(--font-color);
     padding: 10px 20px;
     border-radius: 16px;
     font-family: inherit;
-    border: none;
+    border: 2px solid var(--border-color);
     font-weight: bold;
     cursor: pointer;
-    box-shadow: 4px 4px 4px -2px rgba(255, 230, 0, 0.661); /* x, y, blur, spread, color*/
+    box-shadow: 2px 2px 2px -2px rgba(255, 230, 0, 0.661); /* x, y, blur, spread, color*/
     position: fixed;
-    bottom: 4rem;
-    right: 2rem;
+    bottom: 1.5rem;
+    right: 1.5rem;
 }
 
+/*--------*/
+@keyframes rainbow-button {
+    0% {
+      background-position: 0 0;
+    }
+    50% {
+      background-position: 400% 0;
+    }
+    100% {
+      background-position: 0 0;
+    }
+}
+
+#saveButton {
+  padding: 0.6em 2em;
+  border: none;
+  outline: none;
+  color: rgb(255, 255, 255);
+  background: #111;
+  cursor: pointer;
+  position: relative;
+  z-index: 0;
+  border-radius: 10px;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+}
+
+#saveButton:before {
+  content: "";
+  background: linear-gradient(
+    45deg,
+    #ff0000,
+    #ff7300,
+    #fffb00,
+    #48ff00,
+    #00ffd5,
+    #002bff,
+    #7a00ff,
+    #ff00c8,
+    #ff0000
+  );
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  background-size: 400%;
+  z-index: -1;
+  filter: blur(5px);
+  -webkit-filter: blur(5px);
+  width: calc(100% + 4px);
+  height: calc(100% + 4px);
+  animation: rainbow-button 20s linear infinite;
+  transition: opacity 0.3s ease-in-out;
+  border-radius: 10px;
+}
+
+#saveButton:after {
+  z-index: -1;
+  content: "";
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: #222;
+  left: 0;
+  top: 0;
+  border-radius: 10px;
+}
+
+/* #TODO */
 .new-card-button {
     align-items: end;
 }
 
 #clear-LS {
-    background-color: rgb(195, 33, 228);
+    background-color: var(--button-color);
+    color: var(--font-color);
     padding: 10px 20px;
     border-radius: 16px;
     font-family: inherit;
-    border: none;
+    border: 2px solid var(--border-color);
     cursor: pointer;
     font-weight: bold;
     position: fixed;
-    bottom: 4rem;
-    left: 2rem;
+    bottom: 1.5rem;
+    left: 1.5rem;
 }

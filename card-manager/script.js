@@ -50,7 +50,8 @@ function addInputSectionId(sectionDiv) {
     // Create Input for the sectionId
     const sectionIdInput = document.createElement("input");
     sectionIdInput.type = "text";
-    sectionIdInput.placeholder = "Enter section ID";
+    sectionIdInput.placeholder = "Section Name";
+    sectionIdInput.className = "sectionIdInput";
     sectionDiv.appendChild(sectionIdInput);
 }
 
@@ -58,9 +59,18 @@ function addInputImage(sectionDiv) {
     // Create Input for the sectionId
     const imageInput = document.createElement("input");
     imageInput.id = "imageInput";
+    imageInput.className = "imageInput";
     imageInput.type = "file";
     imageInput.accept = "image/*"; // support all img-formats
-    sectionDiv.appendChild(imageInput);
+    
+    // create label etc for css later:
+    let label = document.createElement("label");
+    // label.innerHTML = "Click here:";
+    label.setAttribute("for", imageInput.id); // link with input-field
+    label.appendChild(imageInput);
+    label.className = "imageInputLabel";
+
+    sectionDiv.appendChild(label);
 }
 
 function addSaveButton(sectionDiv) {
@@ -78,7 +88,7 @@ function addSaveButton(sectionDiv) {
 
 function addDeleteButton(sectionDiv) {
     const deleteButton = document.createElement("button");
-    deleteButton.innerHTML = "delete";
+    deleteButton.innerHTML = "x";
     deleteButton.className = "deleteButton";
     addDeleteButtonListener(sectionDiv, deleteButton);
     sectionDiv.appendChild(deleteButton);
@@ -103,8 +113,9 @@ function saveSection(sectionDiv) {
     saveSectionName(sectionDiv);
     saveSectionImages(sectionDiv);
 
-    deleteInputSectionId(sectionDiv);
-    deleteSaveButton(sectionDiv);
+    // deleteInputSectionId(sectionDiv);
+    // deleteSaveButton(sectionDiv);
+    sectionDiv.innerHTML = ""; // faster way to delete Inputs + Buttons
 
     loadSectionNameFromLS(sectionDiv);
     loadSectionImagesFromLS(sectionDiv);
