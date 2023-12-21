@@ -154,7 +154,12 @@ async function saveSectionImages(sectionDiv) {
         if(file.type.startsWith('image/')) {
 
             const imgSrc = await readImage(file);
-            localStorage.setItem("src:"+sectionDiv.id, imgSrc);
+
+            // COMPRESSING THE Data-URL (localStorage full to fast with Data-URL):
+            const originalDataURL = imgSrc;
+            const compressedDataURL = await compressDataURL(originalDataURL, 300, 300, 0.8);
+
+            localStorage.setItem("src:"+sectionDiv.id, compressedDataURL);
             
             // BLOB-URL:
             // const imgSrc = URL.createObjectURL(file);
@@ -166,6 +171,45 @@ async function saveSectionImages(sectionDiv) {
         console.warn("No file selected.")
     }
 }
+
+async function compressDataURL(dataURL, maxWidth, maxHeight, quality) {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+  
+      img.onload = function () {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+  
+        // Anpassen der Bildgröße
+        let width = img.width;
+        let height = img.height;
+  
+        if (width > maxWidth) {
+          height = (maxWidth / width) * height;
+          width = maxWidth;
+        }
+  
+        if (height > maxHeight) {
+          width = (maxHeight / height) * width;
+          height = maxHeight;
+        }
+  
+        canvas.width = width;
+        canvas.height = height;
+  
+        // Draw image on Canvas
+        ctx.drawImage(img, 0, 0, width, height);
+  
+        // get compressed Data URL
+        const compressedDataURL = canvas.toDataURL('image/jpeg', quality);
+        resolve(compressedDataURL);
+      };
+  
+      // set Data-URL to src
+      img.src = dataURL;
+    });
+}
+  
 
 function loadSectionNameFromLS(sectionDiv) {
     let name = localStorage.getItem("name:"+sectionDiv.id);
