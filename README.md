@@ -6,11 +6,14 @@ my Website:
 
 **My skills:** 
 - [x] html
-- [x] css
+- [x] CSS
 - [x] javaScript
 - [x] json manifest
 - [ ] React
+- [ ] Vite
 - [ ] node.js
+- [ ] Tailwind CSS
+- [ ] SCSS
 - [ ] Angular
 - [ ] mySQL
 
