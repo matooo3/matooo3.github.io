@@ -20,10 +20,7 @@ function addNewSection() {
     const sectionDiv = document.getElementById(sectionId);
     
     addInputsToSection(sectionDiv);
-    
-
-    // insert image here
-    // sectionDiv.innerHTML += "<ol><li>a</li><li>d</li></ol>";
+    addSaveButton(sectionDiv);
 }
 
 function addNewLiDivElement (cardList, sectionId) {
@@ -43,7 +40,6 @@ function addNewLiDivElement (cardList, sectionId) {
 function addInputsToSection(sectionDiv) {
     addInputSectionId(sectionDiv)
     addInputImage(sectionDiv)
-    addSaveButton(sectionDiv)
 }
 
 function addInputSectionId(sectionDiv) {
@@ -77,8 +73,8 @@ function addSaveButton(sectionDiv) {
     const saveButton = document.createElement("button");
     saveButton.innerHTML = "Save";
     saveButton.id = "saveButton";
-    saveButton.addEventListener("click", function() {
-        saveSection(sectionDiv);
+    saveButton.addEventListener("click", async function() {
+        await saveSection(sectionDiv);
         addDeleteButton(sectionDiv);
         // addEditButton();
         saveData();
@@ -107,11 +103,11 @@ function deleteSectionFromLS(sectionDiv) {
     localStorage.removeItem("name:"+sectionDiv.id);
 }
 
-function saveSection(sectionDiv) {
+async function saveSection(sectionDiv) {
     active = false; // done => allow addNewSection
     // sectionDiv.innerHTML = ''; //clear
     saveSectionName(sectionDiv);
-    saveSectionImages(sectionDiv);
+    await saveSectionImages(sectionDiv);
 
     // deleteInputSectionId(sectionDiv);
     // deleteSaveButton(sectionDiv);
@@ -129,7 +125,23 @@ function saveSectionName(sectionDiv) {
     // sectionDiv.innerHTML = sectionDiv.id; // Change name of section to sectionId
 }
 
-function saveSectionImages(sectionDiv) {
+function readImage(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+
+        reader.onload = function (e) { // asynchronous => only resolve when the read is done
+            resolve(e.target.result);
+        };
+
+        reader.onerror = function (error) {
+            reject(error);
+        };
+
+        reader.readAsDataURL(file);
+    });
+}
+
+async function saveSectionImages(sectionDiv) {
     const sectionDivInput = sectionDiv.querySelector('input[type="file"]')
     const imageInput = document.getElementById("imageInput");
     // Check if a file is selected:
@@ -141,19 +153,12 @@ function saveSectionImages(sectionDiv) {
         // Check if the file is an image:
         if(file.type.startsWith('image/')) {
 
-            // // 1.Create URL link ! (with Data-URL)
-            // const reader = new FileReader();
-
-            // reader.onload = function(e) { // asynchron => erst wenn Read is done
-            //     const imgSrc = e.target.result;
-            //     // URL to storage
-            //     localStorage.setItem("src:"+sectionDiv.id, imgSrc);
-            // }
-            // reader.readAsDataURL(file);
-            const imgSrc = URL.createObjectURL(file);
-            localStorage.setItem("src:"+sectionDiv.id, imgSrc);    
+            const imgSrc = await readImage(file);
+            localStorage.setItem("src:"+sectionDiv.id, imgSrc);
             
-
+            // BLOB-URL:
+            // const imgSrc = URL.createObjectURL(file);
+            // localStorage.setItem("src:"+sectionDiv.id, imgSrc);    
         } else {
             console.error("Selected file is not an image.")
         }
@@ -171,7 +176,7 @@ function loadSectionNameFromLS(sectionDiv) {
 
 function loadSectionImagesFromLS(sectionDiv) {
     imgSrc = localStorage.getItem("src:"+sectionDiv.id);
-    img = document.createElement("img");
+    const img = document.createElement("img");
     img.src = imgSrc;
     img.id = "img:"+sectionDiv.id;
     sectionDiv.appendChild(img);
