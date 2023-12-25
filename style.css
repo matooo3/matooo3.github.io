@@ -114,7 +114,7 @@ nav a:hover {
 
 .visible {
     display: flex;
-    justify-content: space-between;
+    justify-content: end;
     background-color: inherit;
     border: 0.5 solid rgba(0, 0, 0, 0.2);
     border-radius: 16px;
@@ -123,13 +123,20 @@ nav a:hover {
     font-size: inherit;
     font-weight: inherit;
     animation: colorChange 2s infinite alternate;
+   
 }
-#close-nav, #open-nav {
-    border-radius: 8px;
+#toggle-nav {
+    text-align: center;
+    border-radius: 50%;
     border: none;
-    margin: 2px;
-
+    margin: 4px;
+    padding: 4px 8px;
+    font-size: 15px;
+    background-color: #5d2a2aff;
+    color: white;
+    cursor: pointer;
 }
+
 
 section {
     margin-top: 40px;
