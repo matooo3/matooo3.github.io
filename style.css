@@ -1,3 +1,16 @@
+/* --dark-bg: #333;
+    --darker-bg: #1e1e1e;
+    --dark-red-bg: #422f2fb0; */
+
+:root {
+    --dark-bg: #333;
+    --darker-bg: #1e1e1e;
+    
+    --light-red-bg: #ff555581;
+    --dark-red-bg: #aa222296;
+    --darker-red-bg: #422f2fb0;
+}
+
 html {
     scroll-behavior: smooth;
 }
@@ -6,9 +19,13 @@ body {
     font-family: 'Arial', sans-serif;
     margin: 0;
     padding: 0;
-    background-color: #333; /* Dunkler Hintergrund */
+    background-color: var(--dark-bg); /* Dunkler Hintergrund */
     color: white; /* Helle Schrift */
-    background: linear-gradient(to top, #333, #5d2a2aff);
+    background: linear-gradient(to bottom,
+        var(--darker-bg) 0%,       
+        var(--darker-red-bg) 300%) fixed;
+    background-size: cover; /* Den Hintergrund auf die volle Größe des Viewports abdecken */
+    min-height: 100vh;
 }
 
 .navbar {
@@ -81,8 +98,7 @@ nav {
     /*background: linear-gradient(to left, #495b70, #1d5c8b);*/
     animation: colorChange2 2s infinite alternate;
     position: sticky;
-    top: 2px;
-    
+    top: 4px;
 }
 
 nav ul {
@@ -103,9 +119,9 @@ nav a {
     font-weight: bold;
     padding: 8px 16px; /* Innerer Abstand oben/unten 8px, seitlich 16px */
     /*background-color: #1f73b3;*/ /* Hintergrundfarbe */
-    border-radius: 5px; /* Abrundung der Ecken */
+    border-radius: 5px;
     animation: colorChange 2s infinite alternate;
-    transition: background-color 0.3s ease; /* Animiere die Hintergrundfarbe beim Überfahren */
+    /* transition: background-color 0.3s ease; Animiere die Hintergrundfarbe beim Überfahren */
 }
 nav a:hover {
     /*color: #441111; /* Ändere dies zu einer Akzentfarbe deiner Wahl */
@@ -117,18 +133,17 @@ nav a:hover {
     justify-content: end;
     background-color: inherit;
     border: 0.5 solid rgba(0, 0, 0, 0.2);
-    border-radius: 16px;
+    border-radius: 8px;
     font-family: inherit;
     color: inherit;
     font-size: inherit;
     font-weight: inherit;
     animation: colorChange 2s infinite alternate;
-   
 }
 #toggle-nav {
     text-align: center;
     border-radius: 50%;
-    border: none;
+    border: solid 0.5px white;
     margin: 4px;
     padding: 4px 8px;
     font-size: 15px;
@@ -139,9 +154,15 @@ nav a:hover {
 
 
 section {
+    /* background-color: #505052d9; */
     margin-top: 40px;
-    box-shadow: 0 0 30px rgba(253, 245, 245, 0.2); /* Anpassen, um die Intensität zu ändern */
+    box-shadow: 0 0 16px rgba(255, 255, 255, 0.2); /* Anpassen, um die Intensität zu ändern */
     padding: 20px;
+    border: solid 1px rgba(255, 255, 255, 0.378);
+    border-radius: 32px;
+    background: linear-gradient(to top,
+        var(--dark-red-bg) 0%,
+        var(--darker-red-bg) 100%);
 }
 
 .link {
@@ -159,7 +180,7 @@ section {
     padding: 0.8rem 1.6rem;
     border-radius: 1rem;
     border: none;
-    color:#333;
+    color:var(--dark-bg);
     margin-right: 0.8rem;
     margin-top: 0.8rem;
     font-size: 1.3rem;
