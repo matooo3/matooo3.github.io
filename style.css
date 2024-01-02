@@ -9,6 +9,10 @@
     --light-red-bg: #ff555581;
     --dark-red-bg: #aa222296;
     --darker-red-bg: #422f2fb0;
+
+    --light-animated-bg: #071b31; 
+    --dark-animated-bg: #1c3344;
+
 }
 
 html {
@@ -44,12 +48,12 @@ body {
   
 
 @keyframes colorChange {
-    from { background-color: #071b31; }
-    to { background-color: #1c3344; }
+    from { background-color: var(--dark-animated-bg); }
+    to { background-color: var(--light-animated-bg); }
 }
 @keyframes colorChange2 {
-    from { background-color: #1c3344; }
-    to { background-color: #071b31; }
+    from { background-color: var(--light-animated-bg); }
+    to { background-color: var(--dark-animated-bg); }
 }
 
 @keyframes rainbow {
@@ -69,8 +73,6 @@ body {
         color: blue;
     }
 }
-
-  
 
 header, nav, section, footer {
     margin: 20px;
@@ -156,7 +158,7 @@ nav a:hover {
 section {
     /* background-color: #505052d9; */
     margin-top: 40px;
-    box-shadow: 0 0 16px rgba(255, 255, 255, 0.2); /* Anpassen, um die Intensität zu ändern */
+    box-shadow: 0 0 8px rgba(255, 255, 255, 0.75); /* Anpassen, um die Intensität zu ändern */
     padding: 20px;
     border: solid 1px rgba(255, 255, 255, 0.378);
     border-radius: 32px;
