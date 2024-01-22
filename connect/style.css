@@ -1,0 +1,82 @@
+* {
+    margin: 0;
+    padding: 0;
+    color: white;
+    text-decoration: none;
+}
+
+body {
+    background-image: url('img/redBG.png');
+    background-size: cover;
+    height: 100vh;
+    background-color: #333;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    font-family: sans-serif;
+}
+
+
+
+.container {
+}
+
+.box-row {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.box {
+    align-items: center;
+    background-color: #262626f8;
+    color: white;
+    border: solid rgba(255, 255, 255, 0.538) 1px;
+    border-radius: 32px;
+    padding: 10vh;
+    margin: 2vh;
+    filter: blur(1.2px);
+}
+
+.box:hover {
+    transition: all 0.3s;
+    scale: 1.05 1.05; 
+    cursor: pointer;
+    border: solid white 1px;
+    box-shadow: 1px 1px 4px white;
+    transform: rotate(-360deg);
+    filter: blur(0px);
+    background-color: #262626;
+} 
+
+#navbar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    padding-bottom: 100vh;
+    padding-left: 6px;
+}
+
+.navbarOpen {
+    border-right: solid rgba(255, 255, 255, 0.116) 0.25px;
+    box-shadow: 1px 0px 4px rgba(255, 255, 255, 0.363);
+    background-color: #000000c7;
+    padding-right: 80vw;
+}
+
+#nav-button {
+    user-select: none;
+    color: white;
+    background-color: rgb(22, 22, 22);
+    font-size: 42px;
+    position: relative;
+    padding: 4px 12px;
+    top: 10px;
+    border-radius: 12px;
+}
+
+#nav-button:hover {
+    cursor: pointer;
+}
+
