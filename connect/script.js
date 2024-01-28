@@ -16,4 +16,6 @@ function toggleNavbar() {
 
 function openLink(link) {
     window.location.href = link;
-  }
+}
+
+

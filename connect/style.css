@@ -6,7 +6,8 @@
 }
 
 body {
-    background-image: url('img/redBG.png');
+    /* background-image: url('img/redBG.png'); */
+    background: linear-gradient(to bottom, #1a1b2f, #161727);
     background-size: cover;
     height: 100vh;
     background-color: #333;
@@ -14,9 +15,9 @@ body {
     flex-direction: column;
     justify-content: center;
     font-family: sans-serif;
+
+    /* overflow: hidden; */
 }
-
-
 
 .container {
 }
@@ -30,13 +31,53 @@ body {
 
 .box {
     align-items: center;
-    background-color: #262626f8;
+    background-color: #1e1e20;
     color: white;
-    border: solid rgba(255, 255, 255, 0.538) 1px;
     border-radius: 32px;
-    padding: 10vh;
     margin: 2vh;
-    filter: blur(1.2px);
+    position: relative;
+    width: 15rem;
+    height: 12rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    white-space: nowrap;
+}
+
+@media only screen and (max-width: 550px) {
+    .box {
+        width: 10rem;
+        height: 8rem;
+    }
+}
+.box::before {
+    content: '';
+    position: absolute;
+    top: -2%; /* half of the added width & height */
+    left: -2%;
+    width: 104%;
+    height: 104%;
+    background: linear-gradient(to right, #3d9fa3, #b7305c);
+    z-index: -1;
+    border-radius: inherit;
+}
+
+@keyframes scaleAnimation {
+    0% {
+        transform: scale(1.0);
+    }
+    100% {
+        transform: scale(1.075);
+    }
+}
+
+.box:hover::before {
+    top: 0%;
+    left: 0%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(to right, #3da0a37e, #b7305d7a);
 }
 
 .box:hover {
@@ -45,9 +86,9 @@ body {
     cursor: pointer;
     border: solid white 1px;
     box-shadow: 1px 1px 4px white;
-    transform: rotate(-360deg);
-    filter: blur(0px);
+    /* transform: rotate(-360deg); */
     background-color: #262626;
+    animation: scaleAnimation 0.75s infinite alternate;
 } 
 
 #navbar {
@@ -62,7 +103,8 @@ body {
     border-right: solid rgba(255, 255, 255, 0.116) 0.25px;
     box-shadow: 1px 0px 4px rgba(255, 255, 255, 0.363);
     background-color: #000000c7;
-    padding-right: 80vw;
+    padding-right: 100vw;
+    overflow: hidden;
 }
 
 #nav-button {
@@ -72,11 +114,14 @@ body {
     font-size: 42px;
     position: relative;
     padding: 4px 12px;
+    left: 4px;
     top: 10px;
     border-radius: 12px;
+    border: solid 1px rgba(255, 255, 255, 0.313);
 }
 
 #nav-button:hover {
     cursor: pointer;
+    animation: scaleAnimation 0.6s infinite alternate;
 }
 
