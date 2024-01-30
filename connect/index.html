@@ -7,21 +7,55 @@
     <link rel="icon" href="img/icons/connect.jpg" type="image/jpg">
     <link rel="stylesheet" href="style.css">
     <link rel="manifest" href="manifest.json">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
 </head>
 <body>
     <div class="container">
-        <div class="box-row">
-            <div class="box" onclick="openLink('../RepCounter/index.html')">Rep Counter</div>
-            <div class="box" onclick="openLink('../gemCalculator/index.html')">Gem Calculator</div>
+
+        <div class="box-page">
+            <div class="box-row">
+                <div class="box" onclick="openLink('../RepCounter/index.html')">Rep Counter</div>
+                <div class="box" onclick="openLink('../gemCalculator/index.html')">Gem Calculator</div>
+            </div>
+            <div class="box-row">
+                <div class="box" onclick="openLink('../card-manager/index.html')">Card Manager</div>
+                <div class="box" onclick="openLink('../Egg/index.html')">Egg Timer</div>
+            </div>
         </div>
-        <div class="box-row">
-            <div class="box" onclick="openLink('../card-manager/index.html')">Card Manager</div>
-            <div class="box" onclick="openLink('../Egg/index.html')">Egg Timer</div>
+        
+    </div>
+    
+    <div id="navbar">
+        <div id="nav-button" onclick="toggleVisibility()">
+            <span class="material-symbols-outlined">menu</span>
         </div>
-        <div id="navbar">
-            <div id="nav-button">=</div>
+        <div class="nav-list">
+            <span class="material-symbols-outlined invisible">settings</span>
+            <span class="material-symbols-outlined invisible">info</span>
         </div>
     </div>
+
+    <div class="pagination-wrapper">
+        <svg class="btn btn--prev" height="96" viewBox="0 0 24 24" width="96" xmlns="http://www.w3.org/2000/svg">
+          <path d="M15.41 16.09l-4.58-4.59 4.58-4.59L14 5.5l-6 6 6 6z"/>
+          <path d="M0-.5h24v24H0z" fill="none"/>
+        </svg>
+        
+        <div class="pagination-container">
+          <div class="little-dot  little-dot--first"></div>
+          <div class="little-dot">
+            <div class="big-dot-container">
+              <div class="big-dot"></div>
+            </div>
+          </div>
+          <div class="little-dot  little-dot--last"></div>
+        </div>
+        
+        <svg class="btn btn--next" height="96" viewBox="0 0 24 24" width="96" xmlns="http://www.w3.org/2000/svg">
+          <path d="M8.59 16.34l4.58-4.59-4.58-4.59L10 5.75l6 6-6 6z"/>
+          <path d="M0-.25h24v24H0z" fill="none"/>
+        </svg>
+      </div>
 
     <script src="script.js"></script>
     <script src="../serviceworker.js"></script>
