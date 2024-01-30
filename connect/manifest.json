@@ -3,7 +3,7 @@
     "short_name": "Connect",
     "theme_color": "#333333",
     "background_color": "#333333",
-    "display": "fullscreen",
+    "display": "standalone",
     "scope": "/",
     "start_url": "/connect/index.html",
     "icons": [
