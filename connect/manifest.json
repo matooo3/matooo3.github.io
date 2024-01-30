@@ -5,12 +5,12 @@
     "background_color": "#333333",
     "display": "fullscreen",
     "scope": "/",
-    "start_url": "/connect/index.html",
+    "start_url": "/index.html",
     "icons": [
         {
         "src": "/connect/img/icons/connect.jpg",
         "sizes": "512x512",
         "type": "image/jpg"
         }
-  ]
+    ]
   }
