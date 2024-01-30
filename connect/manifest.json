@@ -8,9 +8,9 @@
     "start_url": "/connect/index.html",
     "icons": [
         {
-        "src": "/connect/img/icons/connect.jpg",
+        "src": "/connect/img/icons/connect.png",
         "sizes": "512x512",
-        "type": "image/jpg"
+        "type": "image/png"
         }
     ]
   }
