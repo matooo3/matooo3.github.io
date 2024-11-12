@@ -1,0 +1,62 @@
+
+/* Standard CSS Reset */
+body {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+    background-color: #e6e5e5;
+    color: #000000;
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    text-align: center;
+}
+
+nav {
+    background-color: #333;
+    padding: 1em;
+    text-align: center;
+    margin-bottom: 15px;
+    margin-left: 20px;
+    margin-right: 20px;
+    border-radius: 32px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    padding: 0.5em 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+}
+
+nav a {
+    color: white;
+    margin: 0 1em;
+    text-decoration: none;
+    border: #ffffff 1px solid;
+    padding: 5px;
+    border-radius: 10px;
+    transition: background-color 0.3s;
+    padding: 0.5em 1em;
+}
+
+nav a:hover {
+    color: aquamarine;
+}
+
+#app {
+    padding: 20px;
+    border: #00000036 1px solid;
+    margin: 20px;
+    border-radius: 10px;
+    background-color: #f9f9f9;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
