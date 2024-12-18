@@ -9,6 +9,11 @@ my Website:
 - [x] CSS
 - [x] javaScript
 - [x] json manifest
+- [x] Apache Webserver
+- [x] Nginx
+- [x] Linux
+- [x] MariaDB
+- [ ] SQL
 - [ ] React
 - [ ] Vite
 - [ ] node.js
