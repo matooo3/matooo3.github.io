@@ -15,14 +15,14 @@ my Website:
 - [x] Nginx
 - [x] Linux
 - [x] MariaDB
-- [ ] SQL
+- [x] SQL
 - [ ] React
-- [ ] Vite
-- [ ] node.js
+- [x] Vite
+- [x] node.js
 - [ ] Tailwind CSS
 - [ ] SCSS
 - [ ] Angular
-- [ ] mySQL
+- [x] mySQL
 
 **other skills:**
 - [x] python
@@ -42,4 +42,7 @@ my Website:
 - [x] Eclipse
 - [x] Todoist 
 - [ ] Blender
+- [x] Wireshark
+- [x] Nmap
+
 
