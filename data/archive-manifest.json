@@ -1,0 +1,113 @@
+{
+  "baseCommit": "ea3393b158b1f907dabf4737e505824f8f785287",
+  "originalFileCount": 57,
+  "originalFiles": [
+    "Egg/index.html",
+    "Egg/script.js",
+    "Egg/styles.css",
+    "README.md",
+    "RepCounter/audio/click.mp3",
+    "RepCounter/img/back.png",
+    "RepCounter/img/hantel.png",
+    "RepCounter/img/heart.jpg",
+    "RepCounter/img/heart.png",
+    "RepCounter/img/settings.png",
+    "RepCounter/index.html",
+    "RepCounter/light-theme.css",
+    "RepCounter/readme.md",
+    "RepCounter/script.js",
+    "RepCounter/scripts/lockButton.js",
+    "RepCounter/scripts/script.js",
+    "RepCounter/scripts/storage.js",
+    "RepCounter/scripts/theme.js",
+    "RepCounter/settings.html",
+    "RepCounter/style.css",
+    "Uni/img/uni.jpg",
+    "Uni/styleUni.css",
+    "Uni/uni.html",
+    "card-manager/README.md",
+    "card-manager/img/icons/card.png",
+    "card-manager/index.html",
+    "card-manager/script.js",
+    "card-manager/style.css",
+    "connect/img/icons/connect.jpg",
+    "connect/img/icons/connect.png",
+    "connect/img/redBG.png",
+    "connect/index.html",
+    "connect/manifest.json",
+    "connect/script.js",
+    "connect/style.css",
+    "gemCalculator/README.md",
+    "gemCalculator/img/gem (1).png",
+    "gemCalculator/img/gem.png",
+    "gemCalculator/index.html",
+    "gemCalculator/script.js",
+    "gemCalculator/style.css",
+    "index.html",
+    "landingPage.html",
+    "media/img/sittingBusinessMan.png",
+    "media/videos/Camp Fire.mp4",
+    "readme2.md",
+    "routing-example/index.html",
+    "routing-example/main.js",
+    "routing-example/pages/about.js",
+    "routing-example/pages/home.js",
+    "routing-example/pages/settings.js",
+    "routing-example/style.css",
+    "script.js",
+    "serviceworker.js",
+    "startingPage.css",
+    "startingPage.html",
+    "style.css"
+  ],
+  "redirects": [
+    {
+      "from": "Egg/index.html",
+      "to": "archiv/Egg/index.html"
+    },
+    {
+      "from": "RepCounter/index.html",
+      "to": "archiv/RepCounter/index.html"
+    },
+    {
+      "from": "RepCounter/settings.html",
+      "to": "archiv/RepCounter/settings.html"
+    },
+    {
+      "from": "Uni/uni.html",
+      "to": "archiv/Uni/uni.html"
+    },
+    {
+      "from": "card-manager/index.html",
+      "to": "archiv/card-manager/index.html"
+    },
+    {
+      "from": "connect/index.html",
+      "to": "archiv/connect/index.html"
+    },
+    {
+      "from": "gemCalculator/index.html",
+      "to": "archiv/gemCalculator/index.html"
+    },
+    {
+      "from": "landingPage.html",
+      "to": "archiv/landingPage.html"
+    },
+    {
+      "from": "routing-example/index.html",
+      "to": "archiv/routing-example/index.html"
+    },
+    {
+      "from": "startingPage.html",
+      "to": "archiv/startingPage.html"
+    }
+  ],
+  "allowedChanges": [
+    "RepCounter/settings.html",
+    "connect/manifest.json",
+    "serviceworker.js"
+  ],
+  "addedHelpers": [
+    "archive-worker.js"
+  ]
+}

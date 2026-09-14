@@ -1,0 +1,89 @@
+{
+  "captured": "2026-09-14",
+  "repositories": [
+    {
+      "language": "Python",
+      "name": "BeMaMaJa-Search-Engine/BeMaMaJa-Search-Engine",
+      "private": false,
+      "url": "https://github.com/BeMaMaJa-Search-Engine/BeMaMaJa-Search-Engine"
+    },
+    {
+      "language": "Jupyter Notebook",
+      "name": "eifelnex/Hands-On-3D-Vision",
+      "private": true,
+      "url": "https://github.com/eifelnex/Hands-On-3D-Vision"
+    },
+    {
+      "language": "JavaScript",
+      "name": "matooo3/card-manager",
+      "private": false,
+      "url": "https://github.com/matooo3/card-manager"
+    },
+    {
+      "language": "TypeScript",
+      "name": "matooo3/codex-ui",
+      "private": true,
+      "url": "https://github.com/matooo3/codex-ui"
+    },
+    {
+      "language": "JavaScript",
+      "name": "matooo3/Gem-calculator-coc-",
+      "private": false,
+      "url": "https://github.com/matooo3/Gem-calculator-coc-"
+    },
+    {
+      "language": "Python",
+      "name": "matooo3/hockey-env",
+      "private": true,
+      "url": "https://github.com/matooo3/hockey-env"
+    },
+    {
+      "language": "HTML",
+      "name": "matooo3/matooo3.github.io",
+      "private": false,
+      "url": "https://github.com/matooo3/matooo3.github.io"
+    },
+    {
+      "language": "JavaScript",
+      "name": "matooo3/NutriPilot",
+      "private": false,
+      "url": "https://github.com/matooo3/NutriPilot"
+    },
+    {
+      "language": "JavaScript",
+      "name": "matooo3/Pencil2Pixel",
+      "private": false,
+      "url": "https://github.com/matooo3/Pencil2Pixel"
+    },
+    {
+      "language": "JavaScript",
+      "name": "matooo3/RepCounter",
+      "private": false,
+      "url": "https://github.com/matooo3/RepCounter"
+    },
+    {
+      "language": "Java",
+      "name": "matooo3/yapp-ai",
+      "private": true,
+      "url": "https://github.com/matooo3/yapp-ai"
+    },
+    {
+      "language": "Python",
+      "name": "matooo3/zero-shot-cxr-vlm",
+      "private": true,
+      "url": "https://github.com/matooo3/zero-shot-cxr-vlm"
+    },
+    {
+      "language": "Dart",
+      "name": "MyLifeGraph/MyLifeGraph",
+      "private": false,
+      "url": "https://github.com/MyLifeGraph/MyLifeGraph"
+    },
+    {
+      "language": "C#",
+      "name": "zaryar/AquaDefender",
+      "private": false,
+      "url": "https://github.com/zaryar/AquaDefender"
+    }
+  ]
+}

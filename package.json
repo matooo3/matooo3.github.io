@@ -1,0 +1,12 @@
+{
+  "name": "matze-portfolio",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "node scripts/serve.mjs",
+    "build": "node scripts/build.mjs",
+    "test": "node scripts/verify.mjs"
+  },
+  "engines": { "node": ">=20" }
+}
