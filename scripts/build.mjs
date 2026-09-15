@@ -3,6 +3,7 @@ import { dirname, relative } from 'node:path';
 import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 const assetVersion = path => createHash('sha256').update(readFileSync(path)).digest('hex').slice(0, 10);
+import { extraVisual } from '../data/visuals.mjs';
 import { projects, categoryLabels } from '../data/projects.mjs';
 import { englishHtml, languageSwitcher, projectTranslations } from '../data/i18n.mjs';
 
@@ -27,16 +28,21 @@ function actions(project) {
   return links.join('');
 }
 function visual(project) {
+  const extra = extraVisual(project);
+  if (extra) return extra;
   if (project.visual === 'life') return `<div class="project-visual life-visual"><span class="visual-kicker">MYLIFEGRAPH / DESIGN SYSTEM</span><img src="assets/mylifegraph.webp" width="1280" height="675" loading="lazy" alt="MyLifeGraph: Vorschau des hellen Designsystems mit Planungselementen und Statusanzeigen"><span class="visual-footnote">Flutter · Persönliche Tagesplanung</span></div>`;
   if (project.visual === 'pencil') return `<div class="project-visual pencil-visual"><img class="pencil-output" src="assets/pencil2pixel.webp" width="1024" height="1024" loading="lazy" alt="Pencil2Pixel: Ein aus einer Skizze generiertes pinkes Flugzeug in einer Wolkenlandschaft"><div class="sketch-inset"><img src="assets/pencil-sketch.webp" width="1111" height="1111" loading="lazy" alt="Die ursprüngliche handgezeichnete Flugzeugskizze"><span>Alles beginnt mit einer Skizze.</span></div><span class="visual-pill">Skizze → Bild</span></div>`;
   if (project.visual === 'nutri') return `<div class="project-visual nutri-visual"><span class="visual-kicker">NUTRIPILOT / V&M FUEL</span><p class="visual-headline">Weniger planen.<br>Bewusster essen.</p><div class="nutri-bottom"><span>Meal Planning<br>& Einkaufslisten</span>${icon('arrow-up-right')}</div></div>`;
   return `<div class="project-visual yapp-visual"><span class="visual-kicker">YAPP AI / VOICE TO TEXT</span><p class="visual-headline">Ein Gedanke.<br>Einfach gesagt.</p><div class="yapp-bottom"><span>Windows & Android</span><span>Sprache wird Text ${icon('arrow-right')}</span></div></div>`;
 }
-const featured = projects.filter(project => project.featured).map((project, index) => `<article class="featured-project reveal" aria-labelledby="featured-${slug(project)}">
+const featuredProjects = projects.filter(project => project.featured).sort((a, b) => (a.featureOrder || 0) - (b.featureOrder || 0));
+const featuredCards = featuredProjects.map((project, index) => `<article class="featured-project reveal" aria-labelledby="featured-${slug(project)}">
   <a class="visual-link" href="#project-${slug(project)}" aria-label="Mehr über ${esc(project.name)}">${visual(project)}</a>
-  <div class="project-heading"><div><span class="eyebrow">0${index + 1} / ${esc(categoryLabels[project.category])}</span><h3 id="featured-${slug(project)}">${esc(project.name)}</h3></div><a class="round-link" href="#project-${slug(project)}" aria-label="Details zu ${esc(project.name)}">${icon('arrow-up-right')}</a></div>
+  <div class="project-heading"><div><span class="eyebrow">${String(index + 1).padStart(2, '0')} / ${esc(categoryLabels[project.category])}</span><h3 id="featured-${slug(project)}">${esc(project.name)}</h3></div><a class="round-link" href="#project-${slug(project)}" aria-label="Details zu ${esc(project.name)}">${icon('arrow-up-right')}</a></div>
   <p>${esc(project.description)}</p><div class="tags">${tags(project)}</div><div class="project-actions">${actions(project)}</div>
-</article>`).join('');
+</article>`);
+const featured = featuredCards.slice(0, 4).join('');
+const additionalFeatured = featuredCards.slice(4).join('');
 const rows = projects.map((project, index) => `<details class="project-row" id="project-${slug(project)}" data-category="${project.category}" data-search="${esc([project.name, project.repo || '', project.description, ...project.tags, ...Object.values(projectTranslations[project.repo || project.name])].join(' ').toLowerCase())}">
   <summary><span class="row-number">${String(index + 1).padStart(2, '0')}</span><span class="row-name">${esc(project.name)}${project.private ? '<small>Privat</small>' : ''}</span><span class="row-category">${esc(categoryLabels[project.category])}</span><span class="row-tech">${esc(project.tags[0])}</span>${icon('arrow-down', 'row-arrow')}</summary>
   <div class="row-detail"><p>${esc(project.detail || project.description)}</p><div class="tags">${tags(project)}</div><div class="project-actions">${actions(project)}</div></div>
@@ -70,7 +76,7 @@ const html = `<!doctype html>
     <figure class="hero-art"><img src="assets/curiosity.webp" width="1536" height="1024" fetchpriority="high" alt="Orangefarbene, verschlungene Skulptur als Sinnbild für Ideen, die sich verbinden"><figcaption><span>NEUGIER VERBINDET.</span><span>01 — ∞</span></figcaption></figure></div>
     <div class="hero-footer"><p>Informatik im Kopf. <span>Bewegung im Alltag.</span></p><div><span>SOFTWARE</span><span>ARTIFICIAL INTELLIGENCE</span><span>FITNESS</span></div></div>
   </section>
-  <section class="selected wrap section-space" id="projekte" aria-labelledby="projects-title"><div class="section-heading"><div><p class="eyebrow">01 / AUSGEWÄHLTE ARBEITEN</p><h2 id="projects-title">Gebaut aus Neugier<span>.</span></h2></div><p>Vom ersten kleinen Tool bis zur KI-App.<br>Ein Einblick in das, woran ich arbeite.</p></div><div class="featured-grid">${featured}</div><a class="button outline all-projects-link" href="#alle-projekte">Alle Projekte entdecken ${icon('arrow-down')}</a></section>
+  <section class="selected wrap section-space" id="projekte" aria-labelledby="projects-title"><div class="section-heading"><div><p class="eyebrow">01 / AUSGEWÄHLTE ARBEITEN</p><h2 id="projects-title">Gebaut aus Neugier<span>.</span></h2></div><p>Vom ersten kleinen Tool bis zur KI-App.<br>Ein Einblick in das, woran ich arbeite.</p></div><div class="featured-grid">${featured}</div><div class="featured-grid additional-featured" id="more-featured">${additionalFeatured}</div><div class="featured-controls"><button class="button primary" id="show-more-projects" type="button" aria-expanded="true" aria-controls="more-featured" hidden><span>Mehr anzeigen</span> <small>8</small> ${icon('arrow-down')}</button><a class="button outline gallery-button" href="/projects/">Galerie öffnen ${icon('arrow-up-right')}</a></div><div class="secondary-project-link"><a class="text-link all-projects-link" href="#alle-projekte">Alle Projekte entdecken ${icon('arrow-down')}</a></div></section>
   <section class="about-section section-space" id="ueber-mich" aria-labelledby="about-title"><div class="wrap about-grid"><div><p class="eyebrow">02 / DER MENSCH DAHINTER</p><h2 id="about-title">Mehr als<br>nur Code<span>.</span></h2><p class="about-signature">Matze <span>/ aka matooo</span></p></div><div class="about-content"><p class="about-lead">Mich interessiert, wie Dinge funktionieren. Und wie man sie ein bisschen besser machen kann.</p><p>Ich studiere Informatik in Tübingen. In meinen Projekten treffen Softwareentwicklung, künstliche Intelligenz und praktische Ideen aufeinander – vom Trainingstool bis zum persönlichen Alltagsbegleiter.</p><p>Abseits des Bildschirms gehören Calisthenics, Fitness und Ernährung zu meinem Alltag. Mein Hintergrund im Rettungsdienst bringt eine weitere Perspektive mit: Technik ist dann spannend, wenn sie Menschen hilft.</p><div class="interest-grid"><div>${icon('code')}<h3>Verstehen & bauen</h3><p>Ideen ausprobieren und durch eigene Projekte lernen.</p></div><div>${icon('barbell')}<h3>Dranbleiben</h3><p>Im Training genauso wie an der nächsten Herausforderung.</p></div></div></div></div></section>
   <section class="wrap section-space skills-section" id="skills" aria-labelledby="skills-title"><div class="section-heading"><div><p class="eyebrow">03 / MEIN WERKZEUGKASTEN</p><h2 id="skills-title">Was ich mitbringe<span>.</span></h2></div><p>Technologien, mit denen ich in meinen<br>eigenen und gemeinsamen Projekten arbeite.</p></div><div class="skills-grid">
     <article><span class="skill-index">01</span>${icon('code')}<h3>Web & Apps</h3><p>Von der Browser-Idee zur mobilen Anwendung.</p><div class="tags"><span>JavaScript</span><span>TypeScript</span><span>HTML & CSS</span><span>Next.js</span><span>Flutter / Dart</span><span>Java</span></div></article>
@@ -79,6 +85,7 @@ const html = `<!doctype html>
     <article class="agent-skills"><span class="skill-index">04</span>${icon('code')}<div><h3>Agentic Engineering</h3><p>Konzeption und Steuerung autonomer Entwicklungsabläufe und integrierter Apps mit Codex, Grok Build, Claude Code (App und CLI) und Antigravity (App und CLI). Schwerpunkte sind Kontextmanagement, strukturierte Agent-Anweisungen, MCP, Plugins und die Integration von KI-Funktionen über APIs.</p><div class="tags"><span>Codex</span><span>Grok Build</span><span>Claude Code · App & CLI</span><span>Antigravity · App & CLI</span><span>MCP</span><span>Plugins & Skills</span><span>API- & KI-Integration</span><span>AGENTS.md / SKILL.md</span><span>Kontextmanagement</span><span>Autonome Workflows</span></div></div></article>
   </div></section>
   <section class="wrap section-space directory" id="alle-projekte" aria-labelledby="directory-title"><div class="section-heading"><div><p class="eyebrow">04 / PROJEKTVERZEICHNIS</p><h2 id="directory-title">Die ganze Sammlung<span>.</span></h2></div><p>Apps, Experimente und erste Schritte.<br>Jedes Projekt ist ein Stück Lernkurve.</p></div>
+    <div class="directory-gallery-link"><a class="text-link" href="/projects/">Galerie öffnen ${icon('arrow-up-right')}</a></div>
     <div class="directory-toolbar" hidden><div class="filters" role="group" aria-label="Projekte nach Kategorie filtern">${filters}</div><label class="search-box">${icon('magnifying-glass')}<span class="sr-only">Projekte durchsuchen</span><input id="project-search" type="search" placeholder="Projekt oder Technologie" autocomplete="off"></label></div>
     <div class="directory-caption"><span>PROJEKT / NAME</span><span id="project-count" role="status" aria-live="polite">${projects.length} Projekte</span></div>
     <div id="project-list">${rows}</div><div class="empty-state" hidden><h3>Hier ist noch Platz für eine neue Idee.</h3><p>Für diese Suche wurde kein Projekt gefunden.</p><button class="button outline" id="reset-filters" type="button">Alle Projekte anzeigen</button></div>
@@ -89,7 +96,7 @@ const html = `<!doctype html>
 <footer class="site-footer wrap"><a class="wordmark" href="#" aria-label="Zurück nach oben">matze<span>.</span></a><p>Mit Neugier gebaut. © <span id="year">2026</span> Matze</p><a href="archiv/">Archiv ${icon('arrow-up-right')}</a><a href="#">Nach oben ${icon('arrow-up-right')}</a></footer>
 </body></html>`;
 const alternates = '<link rel="alternate" hreflang="en" href="https://matooo3.github.io/"><link rel="alternate" hreflang="de" href="https://matooo3.github.io/de/"><link rel="alternate" hreflang="x-default" href="https://matooo3.github.io/">';
-const source = html.replace('</head>', alternates + '</head>');
+const source = html.replace('</head>', alternates + `<link rel="stylesheet" href="featured-flow.css?v=${assetVersion('featured-flow.css')}"><script src="featured-flow.js?v=${assetVersion('featured-flow.js')}" defer></script></head>`);
 writeFileSync('index.html', englishHtml(source).replace('<!--LANGUAGE_SWITCH-->', languageSwitcher('en')));
 mkdirSync('de', { recursive: true });
 const german = source.replace('<!--LANGUAGE_SWITCH-->', languageSwitcher('de'))
@@ -97,7 +104,36 @@ const german = source.replace('<!--LANGUAGE_SWITCH-->', languageSwitcher('de'))
   .replace('property="og:url" content="https://matooo3.github.io/"', 'property="og:url" content="https://matooo3.github.io/de/"')
   .replace(/\b(href|src)="([^"]*)"/g, (match, attribute, value) => /^(?:[a-z]+:|\/|#|$)/i.test(value) ? match : `${attribute}="../${value}"`)
   .replaceAll("url('assets/", "url('../assets/");
-writeFileSync('de/index.html', german);
+writeFileSync('de/index.html', german.replaceAll('href="/projects/"', 'href="/de/projects/"'));
+
+
+// Standalone visual gallery; the home page and its project directory stay intact.
+const galleryProjects = [...projects].sort((a,b) => (a.featureOrder || 100) - (b.featureOrder || 100));
+const galleryCards = galleryProjects.map((project,index) => `<article class="featured-project gallery-card" id="project-${slug(project)}" data-category="${project.category}" data-search="${esc([project.name,project.repo || '',project.description,...project.tags,...Object.values(projectTranslations[project.repo || project.name])].join(' ').toLowerCase())}" aria-labelledby="gallery-${slug(project)}">
+  ${visual(project)}
+  <div class="project-heading"><div><span class="eyebrow">${String(index+1).padStart(2,'0')} / ${esc(categoryLabels[project.category])}</span><h3 id="gallery-${slug(project)}">${esc(project.name)}</h3></div></div>
+  <p>${esc(project.description)}</p><div class="tags">${tags(project)}</div>
+  ${project.detail ? `<details class="gallery-detail"><summary>Mehr zum Projekt ${icon('arrow-down')}</summary><p>${esc(project.detail)}</p></details>` : ''}
+  <div class="project-actions">${actions(project)}</div>
+</article>`).join('');
+const galleryMain = `<main id="main" class="gallery-main wrap"><section class="gallery-intro" aria-labelledby="gallery-title"><a class="text-link gallery-back" href="/"><span aria-hidden="true">←</span> <span>Zur Startseite</span></a><p class="eyebrow">PROJEKTGALERIE</p><h1 id="gallery-title">Alle Ideen. Ein Überblick.</h1><div class="gallery-intro-bottom"><p>Apps, Forschung und kleine Experimente — alle Projekte als visuelle Sammlung.</p><a class="text-link" href="/#alle-projekte">Zur Projektliste ${icon('arrow-down')}</a></div></section>
+<section class="gallery-collection" aria-label="Projektgalerie"><div class="directory-toolbar" hidden><div class="filters" role="group" aria-label="Projekte nach Kategorie filtern">${filters}</div><label class="search-box">${icon('magnifying-glass')}<span class="sr-only">Projekte durchsuchen</span><input id="project-search" type="search" placeholder="Projekt oder Technologie" autocomplete="off"></label></div><div class="gallery-count"><span id="project-count" role="status" aria-live="polite">${projects.length} Projekte</span></div><div class="gallery-grid">${galleryCards}</div><div class="empty-state" hidden><h3>Hier ist noch Platz für eine neue Idee.</h3><p>Für diese Suche wurde kein Projekt gefunden.</p><button class="button outline" id="reset-filters" type="button">Alle Projekte anzeigen</button></div></section></main>`;
+const galleryBase = html.replace('</head>', `<link rel="stylesheet" href="orbit.css?v=${assetVersion('orbit.css')}"><script src="orbit.js?v=${assetVersion('orbit.js')}" defer></script></head>`).replace(/<main id="main">[\s\S]*?<\/main>/,galleryMain).replace('<title>Matze — Software, KI & gute Ideen.</title>','<title>Projektgalerie — Matze</title>').replace('href="#" class="wordmark"','href="/" class="wordmark"').replace(/href="#(projekte|ueber-mich|skills|kontakt)"/g,'href="/#$1"');
+for (const lang of ['en','de']) {
+  const route = lang === 'en' ? '/projects/' : '/de/projects/';
+  const home = lang === 'en' ? '/' : '/de/';
+  const prefix = lang === 'en' ? '../' : '../../';
+  let page = (lang === 'en' ? englishHtml(galleryBase) : galleryBase)
+    .replace('<!--LANGUAGE_SWITCH-->',languageSwitcher(lang).replace('href="/"','href="/projects/"').replace('href="/de/"','href="/de/projects/"'))
+    .replace('<link rel="canonical" href="https://matooo3.github.io/">',`<link rel="canonical" href="https://matooo3.github.io${route}">`)
+    .replace('property="og:url" content="https://matooo3.github.io/"',`property="og:url" content="https://matooo3.github.io${route}"`)
+    .replace('</head>','<link rel="alternate" hreflang="en" href="https://matooo3.github.io/projects/"><link rel="alternate" hreflang="de" href="https://matooo3.github.io/de/projects/"><link rel="alternate" hreflang="x-default" href="https://matooo3.github.io/projects/"></head>')
+    .replace(/href="\/(#[^"]*)?"/g,(_,hash) => `href="${home}${hash || ''}"`)
+    .replace(/\b(href|src)="([^"]*)"/g,(match,attribute,value)=>/^(?:[a-z]+:|\/|#|$)/i.test(value)?match:`${attribute}="${prefix}${value}"`)
+    .replaceAll("url('assets/",`url('${prefix}assets/`);
+  mkdirSync(route.slice(1),{recursive:true});
+  writeFileSync(route.slice(1)+'index.html',page.replace(/^[\t ]+$/gm, ''));
+}
 
 // Preserve bookmarked legacy HTML routes with redirect stubs, never copies of the old files.
 const oldFiles = execFileSync('git', ['ls-tree', '-rz', '--name-only', baseCommit], { encoding: 'utf8' }).split('\0').filter(Boolean);

@@ -44,7 +44,7 @@ themeToggle.addEventListener('click', () => {
   syncTheme();
 });
 
-const rows = [...document.querySelectorAll('.project-row')];
+const rows = [...document.querySelectorAll('.project-row, .gallery-card')];
 const filters = [...document.querySelectorAll('[data-filter]')];
 const search = document.querySelector('#project-search');
 const count = document.querySelector('#project-count');
@@ -66,6 +66,7 @@ function filterProjects() {
     filter.classList.toggle('active', active);
     filter.setAttribute('aria-pressed', String(active));
   }
+  document.dispatchEvent(new CustomEvent('portfolio:filter'));
 }
 filters.forEach(filter => filter.addEventListener('click', () => { category = filter.dataset.filter; filterProjects(); }));
 search.addEventListener('input', filterProjects);
@@ -74,7 +75,7 @@ function revealProjectHash() {
   const id = location.hash.slice(1);
   if (!id.startsWith('project-')) return;
   const row = document.getElementById(id);
-  if (!row?.classList.contains('project-row')) return;
+  if (!row || !(row.classList.contains('project-row') || row.classList.contains('gallery-card'))) return;
   category = 'all'; search.value = ''; filterProjects(); row.open = true;
   requestAnimationFrame(() => row.scrollIntoView({ block: 'start', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth' }));
 }
@@ -86,7 +87,7 @@ document.addEventListener('click', event => {
 revealProjectHash();
 
 const copyButton = document.querySelector('#copy-email');
-copyButton.addEventListener('click', async () => {
+copyButton?.addEventListener('click', async () => {
   const status = document.querySelector('#copy-status');
   try {
     await navigator.clipboard.writeText('matze2948@gmail.com');
@@ -123,3 +124,23 @@ document.addEventListener('keydown', event => {
 languageMenu.querySelectorAll('a').forEach(link => {
   link.addEventListener('click', () => { link.hash = location.hash; });
 });
+
+// All twelve cards remain available without JavaScript.
+const moreProjects = document.querySelector('#more-featured');
+const moreButton = document.querySelector('#show-more-projects');
+if (moreProjects && moreButton) {
+moreProjects.hidden = true;
+moreButton.hidden = false;
+moreButton.setAttribute('aria-expanded', 'false');
+moreButton.addEventListener('click', () => {
+  const expanded = moreButton.getAttribute('aria-expanded') !== 'true';
+  moreProjects.hidden = !expanded;
+  moreButton.setAttribute('aria-expanded', String(expanded));
+  moreButton.querySelector('span').textContent = isEnglish ? (expanded ? 'Show less' : 'Show more') : (expanded ? 'Weniger anzeigen' : 'Mehr anzeigen');
+  moreButton.querySelector('small').hidden = expanded;
+  document.dispatchEvent(new CustomEvent('portfolio:featured', { detail: { expanded } }));
+  const target = document.querySelector('#featured-flow:not([hidden])') || (expanded ? moreProjects : moreButton);
+  requestAnimationFrame(() => target.scrollIntoView({ block: expanded ? 'start' : 'center', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth' }));
+});
+
+}
