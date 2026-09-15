@@ -60,7 +60,7 @@ const html = `<!doctype html>
   <meta property="og:type" content="website"><meta property="og:locale" content="de_DE"><meta property="og:title" content="Matze — Software, KI & gute Ideen."><meta property="og:description" content="Apps, KI-Experimente und Projekte aus echter Neugier. Das Portfolio von Matze."><meta property="og:url" content="https://matooo3.github.io/"><meta property="og:image" content="https://matooo3.github.io/assets/curiosity.webp">
   <link rel="icon" href="assets/icons/code.svg" type="image/svg+xml">
   <link rel="preload" href="assets/fonts/manrope-latin.woff2" as="font" type="font/woff2" crossorigin>
-  <script src="theme-init.js?v=${assetVersion('theme-init.js')}"></script><link rel="stylesheet" href="styles.css?v=${assetVersion('styles.css')}"><script src="app.js?v=${assetVersion('app.js')}" defer></script>
+  <script src="theme-init.js?v=${assetVersion('theme-init.js')}"></script><link rel="stylesheet" href="styles.css?v=${assetVersion('styles.css')}"><script src="app.js?v=${assetVersion('app.js')}" defer></script><link rel="stylesheet" href="experience.css?v=${assetVersion('experience.css')}"><script src="experience.js?v=${assetVersion('experience.js')}" defer></script>
 </head>
 <body>
 <a class="skip-link" href="#main">Zum Inhalt springen</a>
