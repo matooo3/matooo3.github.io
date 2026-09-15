@@ -1,0 +1,21 @@
+/* Scoped to explicitly enabled extras; never changes the default layout. */
+.blueprint-layer{position:fixed;inset:0;pointer-events:none;z-index:21;overflow:hidden;--draft-line:#8acdeb18;background-image:linear-gradient(var(--draft-line) 1px,transparent 1px),linear-gradient(90deg,var(--draft-line) 1px,transparent 1px);background-size:32px 32px;mask-image:linear-gradient(#0009,#0003 45%,#0009)}
+.blueprint-layer:after{content:"";position:absolute;inset:0 6%;border-inline:1px dashed #8acdeb55}
+.blueprint-scan{position:absolute;inset:0 0 auto;height:100px;background:linear-gradient(transparent,#9fdaed13);border-bottom:1px solid #bceaff80;animation:blueprint-scan 1.3s ease-out both}
+@keyframes blueprint-scan{from{transform:translateY(-110px);opacity:0}20%{opacity:1}to{transform:translateY(100vh);opacity:0}}
+.blueprint-target{outline:1px dashed #87badc65;outline-offset:-1px}
+.blueprint-tag{position:absolute;z-index:3;right:8px;top:5px;pointer-events:none;padding:4px 6px;border:1px solid #7bb3ce55;border-radius:3px;background:#142532ed;color:#b1d9e9;font:8px/1.2 ui-monospace,monospace;letter-spacing:.1em}
+.blueprint-positioned{position:relative}
+.blueprint-active .hero-art,.blueprint-active .gallery-card,.blueprint-active .project-card{outline:1px solid #8acdeb70;outline-offset:3px}
+[data-theme=light] .blueprint-layer{--draft-line:#174f8519}[data-theme=light] .blueprint-target{outline-color:#255d8a75}
+.sculpture-active>img,.sculpture-active>figcaption{visibility:hidden}
+.m-sculpture{position:absolute;inset:0;background:radial-gradient(ellipse at 48% 32%,#253b42,#101b22 65%,#101a1c);color:#e8e9dd;isolation:isolate}
+.m-sculpture:before{content:"";position:absolute;inset:0;background:radial-gradient(ellipse at 85% 70%,#bd90671c,transparent 50%);pointer-events:none}
+.sculpture-canvas{position:absolute;inset:0;width:100%;height:100%;touch-action:pan-y;cursor:grab;outline-offset:-5px;border-radius:inherit}.sculpture-canvas:active{cursor:grabbing}.sculpture-canvas:focus-visible{outline:1px solid #d4b790}
+.sculpture-label{position:absolute;z-index:1;top:39px;left:0;right:0;text-align:center;pointer-events:none;font:8px/1.6 ui-monospace,monospace;letter-spacing:.22em;color:#a8bec4}.sculpture-label strong{display:block;color:#e0c39e;font-size:10px;font-weight:500;margin-bottom:3px}
+.sculpture-controls{position:absolute;bottom:33px;left:0;right:0;display:flex;gap:5px;justify-content:center}.sculpture-controls button{border:1px solid #aec4c32e;border-radius:999px;padding:7px 11px;color:#b9cdce;background:#11242bc9;font-family:inherit;font-size:10px;line-height:1.2;cursor:pointer}.sculpture-controls button[aria-pressed=true]{color:#17232a;background:#e1c6a2;border-color:#e1c6a2}.sculpture-controls button:focus-visible{outline:2px solid #fff;outline-offset:3px}
+.sculpture-hint{position:absolute;bottom:12px;left:0;right:0;color:#92adb4;text-align:center;font:8px/1.2 ui-monospace,monospace;letter-spacing:.05em;pointer-events:none}
+.design-status{font-size:10px;color:var(--muted);line-height:1.6;margin:0 0 10px}
+@media(max-width:650px){.blueprint-tag{font-size:7px;right:4px;padding:3px}.blueprint-layer{background-size:24px 24px}.sculpture-label{top:22px}.sculpture-controls{bottom:30px}.sculpture-controls button{padding:6px 10px}}
+@media(prefers-reduced-motion:reduce){.blueprint-scan{display:none}}
+@media print{.blueprint-layer,.blueprint-tag{display:none}.blueprint-target{outline:none}}
