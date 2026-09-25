@@ -1,4 +1,6 @@
-/* The original image remains the no-JavaScript fallback. */
+/* The original image is available as both a preference and the no-JavaScript fallback. */
+.hero-art.hero-static:hover>img{transform:none}
+.hero-static>.idea-story{display:none}
 .hero-art.idea-active{overflow:clip;background:#111c20}
 .hero-art.idea-active>img,.hero-art.idea-active>figcaption{visibility:hidden}
 .hero-art.idea-active:hover>img{transform:none}

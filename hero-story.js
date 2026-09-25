@@ -2,6 +2,7 @@
    No video download, external renderer or work while hidden/offscreen. */
 (() => {
   const figure=document.querySelector('.hero-art');if(!figure)return;
+  const originalLabel=figure.getAttribute('aria-label');
   const en=document.documentElement.lang==='en',motion=matchMedia('(prefers-reduced-motion: reduce)');
   const titles=en?['An idea takes shape.','A new dimension.','Built with intention.','Made to be useful.']:['Eine Idee nimmt Form an.','Eine neue Dimension.','Mit Absicht gebaut.','Für den Alltag gemacht.'];
   const stages=en?['Sketch','Depth','Form','App']:['Skizze','Tiefe','Form','App'];
@@ -71,7 +72,7 @@
     }
     ctx.globalAlpha=1;
   }
-  function blocked(){return !visible||document.hidden||figure.classList.contains('sculpture-active');}
+  function blocked(){return !visible||document.hidden||figure.classList.contains('sculpture-active')||figure.classList.contains('hero-static');}
   function tick(now){
     frame=0;if(destroyed||blocked()){last=0;return;}
     syncMotion();
@@ -89,7 +90,13 @@
   function select(e){const b=e.target.closest('[data-stage]');if(!b)return;time=[1600,4200,7500,11200][Number(b.dataset.stage)];playing=false;stop();paint();updateButton();}
   function togglePlay(){playing=!playing;if(playing&&time>13500)time=0;updateButton();stop();wake();}
   function resize(){const r=host.getBoundingClientRect();width=r.width;height=r.height;unit=Math.min(width*.34,height*.29);dpr=Math.min(devicePixelRatio||1,1.75,1000/Math.max(1,width,height));canvas.width=Math.max(1,Math.round(width*dpr));canvas.height=Math.max(1,Math.round(height*dpr));host.style.setProperty('--unit',`${unit}px`);wake();}
-  function state(){stop();wake();}
+  function syncDisplay(){
+    const isStatic=figure.classList.contains('hero-static');
+    host.hidden=isStatic;figure.classList.toggle('idea-active',!isStatic);
+    if(isStatic){host.getAnimations({subtree:true}).forEach(a=>a.cancel());if(originalLabel===null)figure.removeAttribute('aria-label');else figure.setAttribute('aria-label',originalLabel);}
+    else figure.setAttribute('aria-label',en?'From idea to reality':'Aus Ideen wird Wirklichkeit');
+  }
+  function state(){stop();syncDisplay();if(!blocked())resize();}
   function syncMotion(){if(motionState===motion.matches)return;motionState=motion.matches;px=py=targetX=targetY=0;playing=!motionState;time=motionState?11200:0;updateButton();}
   function reduced(){syncMotion();stop();wake();}
   function quiet(){playing=false;time=11200;stop();updateButton();wake();}
@@ -100,7 +107,7 @@
   const resizeObserver=new ResizeObserver(resize);resizeObserver.observe(host);
   const intersection=new IntersectionObserver(entries=>{visible=entries[0].isIntersecting;state();},{threshold:.05});intersection.observe(figure);
   const modeObserver=new MutationObserver(state);modeObserver.observe(figure,{attributes:true,attributeFilter:['class']});
-  updateButton();resize();
+  syncDisplay();updateButton();resize();
   window.addEventListener('pagehide',e=>{stop();if(!e.persisted){destroyed=true;resizeObserver.disconnect();intersection.disconnect();modeObserver.disconnect();motion.removeEventListener('change',reduced);document.removeEventListener('visibilitychange',state);document.removeEventListener('portfolio:quiet',quiet);} });
   window.addEventListener('pageshow',e=>{if(e.persisted)state();});
 })();

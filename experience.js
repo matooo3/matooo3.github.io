@@ -13,7 +13,7 @@
   const designURL = new URL(`design-extras.js?v=${script.dataset.designVersion}`, script.src).href;
   const designCSS = new URL(`design-extras.css?v=${script.dataset.designCssVersion}`, script.src).href;
   const key = 'matze-experience-v1', motion = matchMedia('(prefers-reduced-motion: reduce)'), fine = matchMedia('(pointer: fine)');
-  const readPrefs = value => ({ atmosphere: value?.atmosphere !== false, command: value?.command !== false, ember: value?.ember === true, blueprint: value?.blueprint === true, sculpture: value?.sculpture === true });
+  const readPrefs = value => ({ atmosphere: value?.atmosphere !== false, command: value?.command !== false, ember: value?.ember === true, blueprint: value?.blueprint === true, staticHero: value?.staticHero === true, sculpture: value?.sculpture === true && value?.staticHero !== true });
   let prefs = readPrefs();
   try { prefs = readPrefs(JSON.parse(localStorage.getItem(key))); } catch { /* Works without storage. */ }
   const settings = document.createElement('details'); settings.className = 'experience-settings';
@@ -28,16 +28,18 @@
   const designInputs = {};
   const designLabels = en ? {
     blueprint: ['Blueprint mode', 'A drafting grid, measured outlines and a brief scan.'],
+    staticHero: ['Calm hero image', 'The original orange sculpture instead of the home-page animation.'],
     sculpture: ['M sculpture', 'Interactive hero artwork on the home page. Metal, glass or light.']
   } : {
     blueprint: ['Blueprint-Modus', 'Zeichenraster, Maßlinien und ein kurzer Scan.'],
+    staticHero: ['Dezentes Titelbild', 'Die ursprüngliche orange Skulptur statt der Animation auf der Startseite.'],
     sculpture: ['M-Skulptur', 'Interaktives Titelmotiv auf der Startseite. Metall, Glas oder Licht.']
   };
-  for (const name of ['blueprint', 'sculpture']) {
+  for (const name of ['blueprint', 'staticHero', 'sculpture']) {
     const option = document.createElement('label'); option.className = 'experience-option';
     option.innerHTML = `<span><strong>${designLabels[name][0]}</strong><small>${designLabels[name][1]}</small></span><input id="${name}-option" type="checkbox" role="switch"><span class="experience-switch" aria-hidden="true"></span>`;
     settings.querySelector('.experience-open').before(option); designInputs[name] = option.querySelector('input');
-    designInputs[name].addEventListener('change', () => { prefs[name] = designInputs[name].checked; save(); apply(); });
+    designInputs[name].addEventListener('change', () => { prefs[name] = designInputs[name].checked; if (prefs[name] && name === 'staticHero') prefs.sculpture = false; if (prefs[name] && name === 'sculpture') prefs.staticHero = false; save(); apply(); });
   }
   const designStatus = document.createElement('p'); designStatus.className = 'design-status'; designStatus.hidden = true; designStatus.setAttribute('role', 'status'); settings.querySelector('.experience-open').before(designStatus);
   let designModule, designLoading = false, blueprintEffect = null, sculptureEffect = null;
@@ -50,9 +52,9 @@
     panel.querySelector('.experience-note').before(fieldset); return fieldset;
   }
   group(en ? 'Navigation' : 'Bedienung', [commandInput.closest('label'), openButton]);
-  const visualGroup = group(en ? 'Visual extras' : 'Visuelle Extras', [atmosphereInput.closest('label'), emberOption, emberStatus, designInputs.blueprint.closest('label'), designInputs.sculpture.closest('label'), designStatus]);
+  const visualGroup = group(en ? 'Visual extras' : 'Visuelle Extras', [atmosphereInput.closest('label'), emberOption, emberStatus, designInputs.blueprint.closest('label'), designInputs.staticHero.closest('label'), designInputs.sculpture.closest('label'), designStatus]);
   const quietButton = document.createElement('button'); quietButton.type = 'button'; quietButton.className = 'experience-quiet'; quietButton.textContent = en ? 'Turn off all visual extras' : 'Alle visuellen Extras ausschalten'; visualGroup.append(quietButton);
-  quietButton.addEventListener('click', () => { prefs.atmosphere = prefs.ember = prefs.blueprint = prefs.sculpture = false; save(); apply(); document.dispatchEvent(new Event('portfolio:quiet')); });
+  quietButton.addEventListener('click', () => { prefs.atmosphere = prefs.ember = prefs.blueprint = prefs.sculpture = false; prefs.staticHero = true; save(); apply(); document.dispatchEvent(new Event('portfolio:quiet')); });
   let dialog, input, list, status, commands = [], filtered = [], activeIndex = 0;
   let atmosphere, halo, sectionObserver, pointerFrame = 0, pointerX = 0, pointerY = 0;
   const languageMenu = document.querySelector('.language-switcher');
@@ -74,6 +76,8 @@
     syncAtmosphere();
     syncEmber();
     designInputs.blueprint.checked = prefs.blueprint; designInputs.sculpture.checked = prefs.sculpture;
+    designInputs.staticHero.checked = prefs.staticHero;
+    document.querySelector('.hero-art')?.classList.toggle('hero-static', prefs.staticHero);
     syncDesign();
   }
   atmosphereInput.addEventListener('change', () => { prefs.atmosphere = atmosphereInput.checked; save(); apply(); });
