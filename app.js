@@ -25,7 +25,7 @@ menuToggle.addEventListener('click', () => {
 nav.addEventListener('click', event => { if (event.target.closest('a')) closeMenu(); });
 document.addEventListener('keydown', event => { if (event.key === 'Escape' && nav.classList.contains('is-open')) { closeMenu(); menuToggle.focus(); } });
 document.addEventListener('click', event => { if (!event.target.closest('.site-header')) closeMenu(); });
-const desktop = matchMedia('(min-width: 761px)');
+const desktop = matchMedia('(min-width: 1001px)');
 desktop.addEventListener('change', closeMenu);
 
 const themeToggle = document.querySelector('#theme-toggle');
@@ -48,7 +48,9 @@ const rows = [...document.querySelectorAll('.project-row, .gallery-card')];
 const filters = [...document.querySelectorAll('[data-filter]')];
 const search = document.querySelector('#project-search');
 const count = document.querySelector('#project-count');
-let category = 'all';
+const initialQuery = new URLSearchParams(location.search);
+let category = filters.some(filter => filter.dataset.filter === initialQuery.get('category')) ? initialQuery.get('category') : 'all';
+search.value = initialQuery.get('q') || '';
 document.querySelector('.directory-toolbar').hidden = false;
 const normalize = text => text.toLocaleLowerCase(root.lang).normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 function filterProjects() {
@@ -67,7 +69,12 @@ function filterProjects() {
     filter.setAttribute('aria-pressed', String(active));
   }
   document.dispatchEvent(new CustomEvent('portfolio:filter'));
+  const url = new URL(location.href);
+  if (search.value.trim()) url.searchParams.set('q', search.value.trim()); else url.searchParams.delete('q');
+  if (category !== 'all') url.searchParams.set('category', category); else url.searchParams.delete('category');
+  if (url.href !== location.href) history.replaceState(history.state, '', url);
 }
+filterProjects();
 filters.forEach(filter => filter.addEventListener('click', () => { category = filter.dataset.filter; filterProjects(); }));
 search.addEventListener('input', filterProjects);
 document.querySelector('#reset-filters').addEventListener('click', () => { category = 'all'; search.value = ''; filterProjects(); search.focus(); });
@@ -122,7 +129,7 @@ document.addEventListener('keydown', event => {
   }
 });
 languageMenu.querySelectorAll('a').forEach(link => {
-  link.addEventListener('click', () => { link.hash = location.hash; });
+  link.addEventListener('click', () => { link.hash = location.hash; link.search = location.search; });
 });
 
 // All twelve cards remain available without JavaScript.

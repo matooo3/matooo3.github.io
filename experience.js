@@ -43,6 +43,16 @@
   let designModule, designLoading = false, blueprintEffect = null, sculptureEffect = null;
   const atmosphereInput = settings.querySelector('#atmosphere-option'), commandInput = settings.querySelector('#command-option'), openButton = settings.querySelector('.experience-open');
   const launcher = document.createElement('button'); launcher.type = 'button'; launcher.className = 'command-launcher'; launcher.hidden = true; launcher.title = ui.open; launcher.setAttribute('aria-label', ui.open); launcher.innerHTML = '<span aria-hidden="true">⌘</span><small>⌘ / Ctrl K</small>'; document.body.append(launcher);
+  const panel = settings.querySelector('.experience-panel');
+  function group(title, nodes) {
+    const fieldset = document.createElement('fieldset'); fieldset.className = 'experience-group';
+    const legend = document.createElement('legend'); legend.textContent = title; fieldset.append(legend, ...nodes);
+    panel.querySelector('.experience-note').before(fieldset); return fieldset;
+  }
+  group(en ? 'Navigation' : 'Bedienung', [commandInput.closest('label'), openButton]);
+  const visualGroup = group(en ? 'Visual extras' : 'Visuelle Extras', [atmosphereInput.closest('label'), emberOption, emberStatus, designInputs.blueprint.closest('label'), designInputs.sculpture.closest('label'), designStatus]);
+  const quietButton = document.createElement('button'); quietButton.type = 'button'; quietButton.className = 'experience-quiet'; quietButton.textContent = en ? 'Turn off all visual extras' : 'Alle visuellen Extras ausschalten'; visualGroup.append(quietButton);
+  quietButton.addEventListener('click', () => { prefs.atmosphere = prefs.ember = prefs.blueprint = prefs.sculpture = false; save(); apply(); document.dispatchEvent(new Event('portfolio:quiet')); });
   let dialog, input, list, status, commands = [], filtered = [], activeIndex = 0;
   let atmosphere, halo, sectionObserver, pointerFrame = 0, pointerX = 0, pointerY = 0;
   const languageMenu = document.querySelector('.language-switcher');
@@ -156,7 +166,7 @@
     entries.push({ title: root.dataset.theme === 'dark' ? ui.light : ui.dark, keywords: 'theme design mode dark light dunkel hell', kind: ui.action, symbol: '◐', run: () => document.querySelector('#theme-toggle').click() });
     entries.push({ title: prefs.atmosphere ? ui.off : ui.on, keywords: 'atmosphere atmosphäre stars sterne licht light', kind: ui.action, symbol: '✧', run: () => { prefs.atmosphere = !prefs.atmosphere; save(); apply(); } });
     const counterpart = [...languageMenu.querySelectorAll('a')].find(a => a.getAttribute('hreflang') === (en ? 'de' : 'en')) || [...languageMenu.querySelectorAll('a')].find(a => a.getAttribute('href') !== location.pathname);
-    if (counterpart) entries.push({ title: en ? ui.german : ui.english, href: counterpart.getAttribute('href') + location.hash, keywords: 'language sprache deutsch german english englisch', kind: ui.language, symbol: '◎' });
+    if (counterpart) entries.push({ title: en ? ui.german : ui.english, href: counterpart.getAttribute('href').split(/[?#]/)[0] + location.search + location.hash, keywords: 'language sprache deutsch german english englisch', kind: ui.language, symbol: '◎' });
     return entries;
   }
   function initCommand() {
@@ -166,7 +176,7 @@
     document.body.append(dialog); input = dialog.querySelector('input'); list = dialog.querySelector('#command-results'); status = dialog.querySelector('.command-status');
     dialog.querySelector('.command-close').addEventListener('click', () => dialog.close());
     dialog.addEventListener('click', event => { if (event.target === dialog) { const rect = dialog.getBoundingClientRect(); if (event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom) dialog.close(); } });
-    dialog.addEventListener('close', () => { document.body.classList.remove('command-open'); input.removeAttribute('aria-activedescendant'); });
+    dialog.addEventListener('close', () => { document.body.classList.remove('command-open'); input.removeAttribute('aria-activedescendant'); document.dispatchEvent(new Event('portfolio:dialog')); });
     input.addEventListener('input', render);
     input.addEventListener('keydown', event => {
       if (event.isComposing) return;
@@ -206,7 +216,7 @@
     initCommand(); if (dialog.open) return;
     settings.open = false; languageMenu.open = false;
     const menu = document.querySelector('#menu-toggle'); if (menu.getAttribute('aria-expanded') === 'true') menu.click();
-    commands = buildCommands(); input.value = ''; render(); dialog.showModal(); document.body.classList.add('command-open'); input.focus();
+    commands = buildCommands(); input.value = ''; render(); dialog.showModal(); document.body.classList.add('command-open'); input.focus(); document.dispatchEvent(new Event('portfolio:dialog'));
   }
   apply();
 })();

@@ -3,6 +3,7 @@ import { dirname, relative } from 'node:path';
 import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 const assetVersion = path => createHash('sha256').update(readFileSync(path)).digest('hex').slice(0, 10);
+import { caseStudies } from '../data/case-studies.mjs';
 import { extraVisual } from '../data/visuals.mjs';
 import { projects, categoryLabels } from '../data/projects.mjs';
 import { englishHtml, languageSwitcher, projectTranslations } from '../data/i18n.mjs';
@@ -27,11 +28,14 @@ function actions(project) {
   if (project.download) links.push(anchor(project.download, `Android-Download ${icon('arrow-up-right')}`, 'text-link'));
   return links.join('');
 }
+function caseStudy(project) {
+  const study = caseStudies[project.repo];
+  return study ? `<section class="case-study" aria-label="Projekt im Fokus"><h4>Projekt im Fokus</h4><dl>${study.de.map(([label, text]) => `<div><dt>${esc(label)}</dt><dd>${esc(text)}</dd></div>`).join('')}</dl></section>` : '';
+}
 function visual(project) {
   const extra = extraVisual(project);
   if (extra) return extra;
-  if (project.visual === 'life') return `<div class="project-visual life-visual"><span class="visual-kicker">MYLIFEGRAPH / DESIGN SYSTEM</span><img src="assets/mylifegraph.webp" width="1280" height="675" loading="lazy" alt="MyLifeGraph: Vorschau des hellen Designsystems mit Planungselementen und Statusanzeigen"><span class="visual-footnote">Flutter · Persönliche Tagesplanung</span></div>`;
-  if (project.visual === 'pencil') return `<div class="project-visual pencil-visual"><img class="pencil-output" src="assets/pencil2pixel.webp" width="1024" height="1024" loading="lazy" alt="Pencil2Pixel: Ein aus einer Skizze generiertes pinkes Flugzeug in einer Wolkenlandschaft"><div class="sketch-inset"><img src="assets/pencil-sketch.webp" width="1111" height="1111" loading="lazy" alt="Die ursprüngliche handgezeichnete Flugzeugskizze"><span>Alles beginnt mit einer Skizze.</span></div><span class="visual-pill">Skizze → Bild</span></div>`;
+  if (project.visual === 'pencil') return `<div class="project-visual pencil-visual"><img class="pencil-output" src="assets/pencil2pixel.webp" width="1024" height="1024" loading="lazy" alt="Pencil2Pixel: Ein aus einer Skizze generiertes pinkes Flugzeug in einer Wolkenlandschaft"><div class="sketch-inset"><img src="assets/pencil-sketch.webp" width="1111" height="1111" loading="lazy" alt="Die ursprüngliche handgezeichnete Flugzeugskizze"><span>Alles beginnt mit einer Skizze.</span></div><span class="visual-pill">Skizze + Prompt → Bild</span></div>`;
   if (project.visual === 'nutri') return `<div class="project-visual nutri-visual"><span class="visual-kicker">NUTRIPILOT / V&M FUEL</span><p class="visual-headline">Weniger planen.<br>Bewusster essen.</p><div class="nutri-bottom"><span>Meal Planning<br>& Einkaufslisten</span>${icon('arrow-up-right')}</div></div>`;
   return `<div class="project-visual yapp-visual"><span class="visual-kicker">YAPP AI / VOICE TO TEXT</span><p class="visual-headline">Ein Gedanke.<br>Einfach gesagt.</p><div class="yapp-bottom"><span>Windows & Android</span><span>Sprache wird Text ${icon('arrow-right')}</span></div></div>`;
 }
@@ -45,7 +49,7 @@ const featured = featuredCards.slice(0, 4).join('');
 const additionalFeatured = featuredCards.slice(4).join('');
 const rows = projects.map((project, index) => `<details class="project-row" id="project-${slug(project)}" data-category="${project.category}" data-search="${esc([project.name, project.repo || '', project.description, ...project.tags, ...Object.values(projectTranslations[project.repo || project.name])].join(' ').toLowerCase())}">
   <summary><span class="row-number">${String(index + 1).padStart(2, '0')}</span><span class="row-name">${esc(project.name)}${project.private ? '<small>Privat</small>' : ''}</span><span class="row-category">${esc(categoryLabels[project.category])}</span><span class="row-tech">${esc(project.tags[0])}</span>${icon('arrow-down', 'row-arrow')}</summary>
-  <div class="row-detail"><p>${esc(project.detail || project.description)}</p><div class="tags">${tags(project)}</div><div class="project-actions">${actions(project)}</div></div>
+  <div class="row-detail">${caseStudies[project.repo] ? caseStudy(project) : `<p>${esc(project.detail || project.description)}</p>`}<div class="tags">${tags(project)}</div><div class="project-actions">${actions(project)}</div></div>
 </details>`).join('');
 const filters = Object.entries(categoryLabels).map(([id, label]) => `<button type="button" class="filter${id === 'all' ? ' active' : ''}" data-filter="${id}" aria-pressed="${id === 'all'}">${label}</button>`).join('');
 
@@ -60,7 +64,7 @@ const html = `<!doctype html>
   <meta property="og:type" content="website"><meta property="og:locale" content="de_DE"><meta property="og:title" content="Matze — Software, KI & gute Ideen."><meta property="og:description" content="Apps, KI-Experimente und Projekte aus echter Neugier. Das Portfolio von Matze."><meta property="og:url" content="https://matooo3.github.io/"><meta property="og:image" content="https://matooo3.github.io/assets/curiosity.webp">
   <link rel="icon" href="assets/icons/code.svg" type="image/svg+xml">
   <link rel="preload" href="assets/fonts/manrope-latin.woff2" as="font" type="font/woff2" crossorigin>
-  <script src="theme-init.js?v=${assetVersion('theme-init.js')}"></script><link rel="stylesheet" href="styles.css?v=${assetVersion('styles.css')}"><script src="app.js?v=${assetVersion('app.js')}" defer></script><link rel="stylesheet" href="experience.css?v=${assetVersion('experience.css')}"><script src="experience.js?v=${assetVersion('experience.js')}" data-ember-version="${assetVersion('ember.js')}" data-design-version="${assetVersion('design-extras.js')}" data-design-css-version="${assetVersion('design-extras.css')}" defer></script>
+  <script src="theme-init.js?v=${assetVersion('theme-init.js')}"></script><link rel="stylesheet" href="styles.css?v=${assetVersion('styles.css')}"><script src="app.js?v=${assetVersion('app.js')}" defer></script><link rel="stylesheet" href="experience.css?v=${assetVersion('experience.css')}"><link rel="stylesheet" href="ui-polish.css?v=${assetVersion('ui-polish.css')}"><link rel="stylesheet" href="hover-demos.css?v=${assetVersion('hover-demos.css')}"><script src="hover-demos.js?v=${assetVersion('hover-demos.js')}" defer></script><script src="experience.js?v=${assetVersion('experience.js')}" data-ember-version="${assetVersion('ember.js')}" data-design-version="${assetVersion('design-extras.js')}" data-design-css-version="${assetVersion('design-extras.css')}" defer></script>
 </head>
 <body>
 <a class="skip-link" href="#main">Zum Inhalt springen</a>
@@ -80,9 +84,10 @@ const html = `<!doctype html>
   <section class="about-section section-space" id="ueber-mich" aria-labelledby="about-title"><div class="wrap about-grid"><div><p class="eyebrow">02 / DER MENSCH DAHINTER</p><h2 id="about-title">Mehr als<br>nur Code<span>.</span></h2><p class="about-signature">Matze <span>/ aka matooo</span></p></div><div class="about-content"><p class="about-lead">Mich interessiert, wie Dinge funktionieren. Und wie man sie ein bisschen besser machen kann.</p><p>Ich studiere Informatik in Tübingen. In meinen Projekten treffen Softwareentwicklung, künstliche Intelligenz und praktische Ideen aufeinander – vom Trainingstool bis zum persönlichen Alltagsbegleiter.</p><p>Abseits des Bildschirms gehören Calisthenics, Fitness und Ernährung zu meinem Alltag. Mein Hintergrund im Rettungsdienst bringt eine weitere Perspektive mit: Technik ist dann spannend, wenn sie Menschen hilft.</p><div class="interest-grid"><div>${icon('code')}<h3>Verstehen & bauen</h3><p>Ideen ausprobieren und durch eigene Projekte lernen.</p></div><div>${icon('barbell')}<h3>Dranbleiben</h3><p>Im Training genauso wie an der nächsten Herausforderung.</p></div></div></div></div></section>
   <section class="wrap section-space skills-section" id="skills" aria-labelledby="skills-title"><div class="section-heading"><div><p class="eyebrow">03 / MEIN WERKZEUGKASTEN</p><h2 id="skills-title">Was ich mitbringe<span>.</span></h2></div><p>Technologien, mit denen ich in meinen<br>eigenen und gemeinsamen Projekten arbeite.</p></div><div class="skills-grid">
     <article><span class="skill-index">01</span>${icon('code')}<h3>Web & Apps</h3><p>Von der Browser-Idee zur mobilen Anwendung.</p><div class="tags"><span>JavaScript</span><span>TypeScript</span><span>HTML & CSS</span><span>Next.js</span><span>Flutter / Dart</span><span>Java</span></div></article>
-    <article><span class="skill-index">02</span>${icon('brain')}<h3>KI & Daten</h3><p>Modelle verstehen, ausprobieren und in Projekte bringen.</p><div class="tags"><span>Python</span><span>Generative AI</span><span>Computer Vision</span><span>Reinforcement Learning</span><span>Jupyter</span></div></article>
-    <article><span class="skill-index">03</span>${icon('github-logo')}<h3>Systeme & Tools</h3><p>Das Fundament hinter funktionierender Software.</p><div class="tags"><span>Git / GitHub</span><span>FastAPI</span><span>Supabase</span><span>PostgreSQL</span><span>Scala</span><span>C# / Unity</span></div></article>
+    <article><span class="skill-index">02</span>${icon('brain')}<h3>KI & Daten</h3><p>Open-Source-LLMs und Speech-to-Text-Modelle auswählen, erproben und in eigene Anwendungen integrieren.</p><div class="tags"><span>Python</span><span>Generative AI</span><span>Open-Source-LLMs</span><span>Speech-to-Text-Modelle</span><span>Computer Vision</span><span>Reinforcement Learning</span><span>Jupyter</span></div></article>
+    <article><span class="skill-index">03</span>${icon('github-logo')}<h3>Backend & Tools</h3><p>Das Fundament hinter funktionierender Software.</p><div class="tags"><span>Git / GitHub</span><span>FastAPI</span><span>Supabase</span><span>PostgreSQL</span><span>Scala</span><span>C# / Unity</span></div></article>
     <article class="agent-skills"><span class="skill-index">04</span>${icon('code')}<div><h3>Agentic Engineering</h3><p>Konzeption und Steuerung autonomer Entwicklungsabläufe und integrierter Apps mit Codex, Grok Build, Claude Code (App und CLI) und Antigravity (App und CLI). Schwerpunkte sind Kontextmanagement, strukturierte Agent-Anweisungen, MCP, Plugins und die Integration von KI-Funktionen über APIs.</p><div class="tags"><span>Codex</span><span>Grok Build</span><span>Claude Code · App & CLI</span><span>Antigravity · App & CLI</span><span>MCP</span><span>Plugins & Skills</span><span>API- & KI-Integration</span><span>AGENTS.md / SKILL.md</span><span>Kontextmanagement</span><span>Autonome Workflows</span></div></div></article>
+    <article class="infrastructure-skills"><span class="skill-index">05</span>${icon('server-network')}<div><h3>Linux, Server & Netzwerke</h3><p>Linux- und Server-Umgebungen einrichten, virtuelle Maschinen verwalten und Dienste vernetzen. Praktische Erfahrung mit Debian, Ubuntu und Proxmox sowie Grundlagen in Subnetzen, Firewall-Regeln und VPNs.</p><div class="tags"><span>Linux</span><span>Debian</span><span>Ubuntu</span><span>Proxmox</span><span>Virtuelle Maschinen</span><span>Subnetze</span><span>Firewalls</span><span>Tailscale</span><span>WireGuard</span></div></div></article>
   </div></section>
   <section class="wrap section-space directory" id="alle-projekte" aria-labelledby="directory-title"><div class="section-heading"><div><p class="eyebrow">04 / PROJEKTVERZEICHNIS</p><h2 id="directory-title">Die ganze Sammlung<span>.</span></h2></div><p>Apps, Experimente und erste Schritte.<br>Jedes Projekt ist ein Stück Lernkurve.</p></div>
     <div class="directory-gallery-link"><a class="text-link" href="/projects/">Galerie öffnen ${icon('arrow-up-right')}</a></div>
@@ -96,7 +101,7 @@ const html = `<!doctype html>
 <footer class="site-footer wrap"><a class="wordmark" href="#" aria-label="Zurück nach oben">matze<span>.</span></a><p>Mit Neugier gebaut. © <span id="year">2026</span> Matze</p><a href="archiv/">Archiv ${icon('arrow-up-right')}</a><a href="#">Nach oben ${icon('arrow-up-right')}</a></footer>
 </body></html>`;
 const alternates = '<link rel="alternate" hreflang="en" href="https://matooo3.github.io/"><link rel="alternate" hreflang="de" href="https://matooo3.github.io/de/"><link rel="alternate" hreflang="x-default" href="https://matooo3.github.io/">';
-const source = html.replace('</head>', alternates + `<link rel="stylesheet" href="featured-flow.css?v=${assetVersion('featured-flow.css')}"><script src="featured-flow.js?v=${assetVersion('featured-flow.js')}" defer></script></head>`);
+const source = html.replace('</head>', alternates + `<link rel="stylesheet" href="hero-story.css?v=${assetVersion('hero-story.css')}"><script src="hero-story.js?v=${assetVersion('hero-story.js')}" defer></script><link rel="stylesheet" href="featured-flow.css?v=${assetVersion('featured-flow.css')}"><script src="featured-flow.js?v=${assetVersion('featured-flow.js')}" defer></script></head>`);
 writeFileSync('index.html', englishHtml(source).replace('<!--LANGUAGE_SWITCH-->', languageSwitcher('en')));
 mkdirSync('de', { recursive: true });
 const german = source.replace('<!--LANGUAGE_SWITCH-->', languageSwitcher('de'))
@@ -113,7 +118,7 @@ const galleryCards = galleryProjects.map((project,index) => `<article class="fea
   ${visual(project)}
   <div class="project-heading"><div><span class="eyebrow">${String(index+1).padStart(2,'0')} / ${esc(categoryLabels[project.category])}</span><h3 id="gallery-${slug(project)}">${esc(project.name)}</h3></div></div>
   <p>${esc(project.description)}</p><div class="tags">${tags(project)}</div>
-  ${project.detail ? `<details class="gallery-detail"><summary>Mehr zum Projekt ${icon('arrow-down')}</summary><p>${esc(project.detail)}</p></details>` : ''}
+  ${project.detail ? `<details class="gallery-detail"><summary>Mehr zum Projekt ${icon('arrow-down')}</summary>${caseStudies[project.repo] ? caseStudy(project) : `<p>${esc(project.detail)}</p>`}</details>` : ''}
   <div class="project-actions">${actions(project)}</div>
 </article>`).join('');
 const galleryMain = `<main id="main" class="gallery-main wrap"><section class="gallery-intro" aria-labelledby="gallery-title"><a class="text-link gallery-back" href="/"><span aria-hidden="true">←</span> <span>Zur Startseite</span></a><p class="eyebrow">PROJEKTGALERIE</p><h1 id="gallery-title">Alle Ideen. Ein Überblick.</h1><div class="gallery-intro-bottom"><p>Apps, Forschung und kleine Experimente — alle Projekte als visuelle Sammlung.</p><a class="text-link" href="/#alle-projekte">Zur Projektliste ${icon('arrow-down')}</a></div></section>

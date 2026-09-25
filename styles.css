@@ -15,10 +15,10 @@
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{animation:none!important;transition:none!important}.hero-art:hover>img,.visual-link:hover .project-visual,.visual-link:hover .pencil-output{transform:none}}
 @media print{.site-header,.hero-art,.directory-toolbar,.site-footer,.contact-section,.all-projects-link{display:none}.wrap{width:100%}.section-space{padding-block:30px}.featured-grid{gap:24px}.project-visual{max-height:150px}.project-row{break-inside:avoid}body{background:#fff;color:#111;font-size:11px}}
 
-.language-switcher{position:relative;font-size:11px;font-weight:650;flex:none}.language-switcher summary{display:flex;align-items:center;gap:7px;min-height:40px;padding:6px 8px;border-radius:6px;list-style:none;white-space:nowrap}.language-switcher summary::-webkit-details-marker{display:none}.language-switcher summary:hover,.language-switcher[open] summary{background:var(--soft)}.language-flag{width:21px;height:14px;display:block;flex:none;border-radius:2px;box-shadow:0 0 0 1px #0001;overflow:hidden}.language-chevron{font-size:13px;line-height:1}.language-options{position:absolute;right:0;top:calc(100% + 8px);min-width:148px;padding:6px;background:var(--bg);border:1px solid var(--line);border-radius:8px;box-shadow:0 12px 30px #0002}.language-options a{display:flex;align-items:center;gap:10px;padding:10px;border-radius:4px;font-size:12px}.language-options a:hover,.language-options a[aria-current=page]{background:var(--soft)}.language-options a[aria-current=page]{color:var(--accent)}
-.skills-grid .agent-skills{grid-column:1/-1;border-left:0;border-top:1px solid var(--line);padding:30px 0 34px;display:grid;grid-template-columns:32px minmax(0,1fr);gap:18px}.skills-grid .agent-skills>.icon{margin:0}.skills-grid .agent-skills p{max-width:900px}.skills-grid .agent-skills h3{padding-right:35px}.agent-skills .skill-index{right:0;top:33px}.skills-grid .agent-skills .tags{margin-top:16px}
+.language-switcher{position:relative;font-size:11px;font-weight:650;flex:none}.language-switcher summary{display:flex;align-items:center;gap:7px;min-height:40px;padding:6px 8px;border-radius:6px;list-style:none;white-space:nowrap}.language-switcher summary::-webkit-details-marker{display:none}.language-switcher summary:hover,.language-switcher[open] summary{background:var(--soft)}.language-flag{width:21px;height:14px;display:block;flex:none;border-radius:2px;box-shadow:0 0 0 1px #0001;overflow:hidden}.language-options{position:absolute;right:0;top:calc(100% + 8px);min-width:148px;padding:6px;background:var(--bg);border:1px solid var(--line);border-radius:8px;box-shadow:0 12px 30px #0002}.language-options a{display:flex;align-items:center;gap:10px;padding:10px;border-radius:4px;font-size:12px}.language-options a:hover,.language-options a[aria-current=page]{background:var(--soft)}.language-options a[aria-current=page]{color:var(--accent)}
+.skills-grid :is(.agent-skills,.infrastructure-skills){grid-column:1/-1;border-left:0;border-top:1px solid var(--line);padding:30px 0 34px;display:grid;grid-template-columns:32px minmax(0,1fr);gap:18px}.skills-grid :is(.agent-skills,.infrastructure-skills)>.icon{margin:0}.skills-grid :is(.agent-skills,.infrastructure-skills) p{max-width:900px}.skills-grid :is(.agent-skills,.infrastructure-skills) h3{padding-right:35px}:is(.agent-skills,.infrastructure-skills) .skill-index{right:0;top:33px}.skills-grid :is(.agent-skills,.infrastructure-skills) .tags{margin-top:16px}
 @media(max-width:1100px){.nav-wrap{gap:16px}.nav-actions{gap:9px}#main-nav{gap:18px}}
-@media(max-width:760px){.language-switcher summary{min-height:36px;padding-inline:5px;gap:5px}.language-flag{width:18px;height:12px}.nav-actions{gap:5px}.language-options{right:0}.skills-grid .agent-skills{padding-block:27px}.agent-skills .skill-index{top:28px}}
+@media(max-width:760px){.language-switcher summary{min-height:36px;padding-inline:5px;gap:5px}.language-flag{width:18px;height:12px}.nav-actions{gap:5px}.language-options{right:0}.skills-grid :is(.agent-skills,.infrastructure-skills){padding-block:27px}:is(.agent-skills,.infrastructure-skills) .skill-index{top:28px}}
 @media(max-width:440px){.archive-nav .archive-label{display:none}.archive-nav .icon{display:inline-block}.archive-nav{padding-right:8px;gap:0;margin:0}.nav-wrap{gap:10px}.language-switcher summary{font-size:10px}}
 
 /* Expanded project gallery: visual demos contain only editorial sample content. */
@@ -38,3 +38,17 @@
 @media(max-width:650px){.gallery-grid{grid-template-columns:1fr;gap:42px}.gallery-intro{padding-top:28px}.gallery-back{margin-bottom:24px}.gallery-intro h1{font-size:42px}.gallery-collection{padding-top:24px}.gallery-collection .directory-toolbar{align-items:stretch;flex-direction:column}.gallery-collection .search-box input{width:100%}.gallery-card .project-heading h3{font-size:25px}.gallery-card>p{font-size:13px}.gallery-card .gallery-visual .visual-kicker{font-size:2cqw}.directory-gallery-link{margin-top:-6px;justify-content:flex-start}.gallery-card .visual-footnote{font-size:9px}}
 
 .secondary-project-link .all-projects-link{display:inline-flex;width:auto;margin:0}
+
+/* Sample wallet cards: photographs and passes stored on the device. */
+.cards-visual .collection-landscape { background: #e3ebdf; }
+.wallet-fitness, .wallet-bank, .wallet-qr { width: 100%; height: 100%; padding: 9%; display: flex; flex-direction: column; justify-content: space-between; color: #355347; }
+.wallet-fitness b { font-size: 3.2cqw; letter-spacing: -.06em; }
+.wallet-fitness span, .wallet-bank span, .wallet-qr span { font-size: 1.3cqw; letter-spacing: .12em; }
+.wallet-fitness i { height: 20%; width: 73%; background: repeating-linear-gradient(90deg,#355347 0 2px,transparent 2px 4px,#355347 4px 5px,transparent 5px 8px); }
+.wallet-bank { background: #424c62; color: #f6eddf; }
+.wallet-bank i { width: 18%; height: 26%; border-radius: .7cqw; background: linear-gradient(135deg,#ceb880,#f2e1b5); border: 1px solid #b79d66; }
+.wallet-bank b { font-size: 2.2cqw; letter-spacing: .1em; }
+.wallet-qr { flex-direction: row; align-items: center; gap: 10%; background: #eee9db; }
+.wallet-qr svg { width: 53%; height: 100%; flex-shrink: 0; }
+.wallet-qr span { line-height: 1.7; }
+.cards-visual .collection-tags { font-size: 1.55cqw; line-height: 1.4; }

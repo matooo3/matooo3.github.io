@@ -5,13 +5,13 @@
   const en = document.documentElement.lang === 'en';
   const text = en ? {
     grid: 'Grid', orbit: 'Orbit view', views: 'Gallery view', title: 'Ideas in orbit.',
-    hint: 'Scroll or drag to explore · Click a card to open', mobile: 'Swipe to explore · Tap a card to open',
+    hint: 'Drag or use ← → · Shift + scroll to rotate', mobile: 'Swipe to explore · Tap a card to open',
     scene: 'Project orbit. Use left and right arrow keys to explore, Enter to open a project.',
     previous: 'Previous project', next: 'Next project', open: 'Open project', close: 'Close project',
     pause: 'Pause motion', play: 'Resume motion', position: 'of', eyebrow: 'A DIFFERENT PERSPECTIVE'
   } : {
     grid: 'Raster', orbit: 'Orbit-Ansicht', views: 'Galerieansicht', title: 'Ideen auf Umlaufbahn.',
-    hint: 'Scrollen oder ziehen · Karte anklicken zum Öffnen', mobile: 'Wischen zum Entdecken · Karte antippen zum Öffnen',
+    hint: 'Ziehen oder ← → · Umschalt + Scrollen zum Drehen', mobile: 'Wischen zum Entdecken · Karte antippen zum Öffnen',
     scene: 'Projektorbit. Mit den Pfeiltasten links und rechts navigieren, mit Enter ein Projekt öffnen.',
     previous: 'Vorheriges Projekt', next: 'Nächstes Projekt', open: 'Projekt öffnen', close: 'Projekt schließen',
     pause: 'Bewegung pausieren', play: 'Bewegung fortsetzen', position: 'von', eyebrow: 'EINE ANDERE PERSPEKTIVE'
@@ -28,11 +28,13 @@
   let active = false, section, stage, deck, dialog, label, position, previous, next, motionButton;
   let cards = [], items = [], current = 0, target = 0, frame = 0, lastTime = 0;
   let radius = 300, verticalRadius = 102, paused = false, inView = true, dragging = false, pointerId, startX = 0, startY = 0, startTarget = 0, moved = false;
-  let suppressClickUntil = 0, idleAfter = 0, wheelTime = 0, wheelAmount = 0, wheelDirection = 0, resizeObserver;
+  let suppressClickUntil = 0, idleAfter = 0, idleTimer = 0, wheelTime = 0, wheelAmount = 0, wheelDirection = 0, resizeObserver;
   const wrap = (value, n) => ((value % n) + n) % n;
   const selected = () => items.length ? wrap(Math.round(target), items.length) : 0;
   const cleanClone = node => {
     const copy = node.cloneNode(true);
+    copy.querySelectorAll('.hover-demo-layer').forEach(layer => layer.remove());
+    for (const visual of [copy, ...copy.querySelectorAll('.is-demo-playing, .is-preview-hovered')]) visual.classList.remove('is-demo-playing', 'is-preview-hovered');
     // Illustrations contain SVG IDs. Give every copy its own references.
     const prefix = `orbit-${++cleanClone.serial}-`;
     const ids = new Map([...copy.querySelectorAll('[id]')].map(el => [el.id, prefix + el.id]));
@@ -65,6 +67,7 @@
     </div><div class="orbit-navigation"><button class="orbit-arrow" type="button" data-orbit-prev aria-label="${text.previous}">←</button><button class="orbit-current" type="button"><span class="orbit-position"></span><strong></strong><span class="orbit-open">${text.open} ↗</span></button><button class="orbit-arrow" type="button" data-orbit-next aria-label="${text.next}">→</button><button class="orbit-motion" type="button" aria-pressed="false" aria-label="${text.pause}" title="${text.pause}">Ⅱ</button></div>`;
     grid.before(section);
     stage = section.querySelector('.orbit-stage');
+    stage.before(section.querySelector('.orbit-navigation'));
     deck = section.querySelector('.orbit-deck');
     label = section.querySelector('.orbit-current strong');
     position = section.querySelector('.orbit-position');
@@ -99,6 +102,7 @@
     });
     stage.addEventListener('wheel', event => {
       if (!active || items.length < 2 || event.ctrlKey) return;
+      if (!event.shiftKey && Math.abs(event.deltaY) >= Math.abs(event.deltaX)) return;
       event.preventDefault();
       const now = performance.now();
       const amount = (Math.abs(event.deltaX) > Math.abs(event.deltaY) ? event.deltaX : event.deltaY) * (event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? stage.clientHeight : 1);
@@ -123,11 +127,14 @@
     stage.addEventListener('pointercancel', finishDrag);
     stage.addEventListener('lostpointercapture', finishDrag);
     stage.addEventListener('dragstart', event => event.preventDefault());
+    stage.addEventListener('focusin', syncMotion);
+    stage.addEventListener('focusout', () => queueMicrotask(syncMotion));
     // Stop motion immediately when off screen, in a background tab, or behind a dialog.
     new IntersectionObserver(entries => { inView = entries[0].isIntersecting; syncMotion(); }, { threshold: 0.05 }).observe(stage);
     resizeObserver = new ResizeObserver(() => { radius = Math.min(440, stage.clientWidth * .36); verticalRadius = stage.clientWidth < 600 ? 72 : 102; if (active) paint(); });
     resizeObserver.observe(stage);
     document.addEventListener('visibilitychange', syncMotion);
+    document.addEventListener('portfolio:dialog', syncMotion);
     reduced.addEventListener('change', () => { current = target = Math.round(target); syncMotion(); paint(); });
   }
   function finishDrag() {
@@ -209,24 +216,33 @@
       section.querySelector('.orbit-current').setAttribute('aria-label', `${text.open}: ${name}, ${index + 1} ${text.position} ${n}`);
     }
   }
-  function canRun() { return active && items.length && inView && !document.hidden && !dialog?.open; }
+  function canRun() { return active && items.length && inView && !document.hidden && !document.querySelector('dialog[open]'); }
+  function canAuto() { return canRun() && !paused && !reduced.matches && !dragging && !stage.contains(document.activeElement) && items.length > 1; }
+  function scheduleIdle() {
+    clearTimeout(idleTimer); idleTimer = 0;
+    if (canAuto() && Number.isFinite(idleAfter)) {
+      const wait = idleAfter - performance.now();
+      if (wait > 0) idleTimer = setTimeout(syncMotion, wait + 1); else wake();
+    }
+  }
   function animate(time) {
     frame = 0;
     if (!canRun()) return;
     const dt = Math.min(40, time - (lastTime || time)); lastTime = time;
-    if (!paused && !reduced.matches && !dragging && !stage.contains(document.activeElement) && time > idleAfter && items.length > 1) target += dt * .000055;
+    if (canAuto() && time >= idleAfter) target += dt * .000055;
     const before = current;
     current += (target - current) * (1 - Math.exp(-dt / 95));
     if (Math.abs(target - current) < .0001) current = target;
     // Keep cyclic coordinates bounded, including after a long open session.
     if (Math.abs(current) > items.length * 100) { const loops = Math.trunc(current / items.length) * items.length; current -= loops; target -= loops; }
     if (current !== before) paint();
-    if (Math.abs(target - current) > .0001 || (!paused && !reduced.matches && items.length > 1)) frame = requestAnimationFrame(animate);
+    if (Math.abs(target - current) > .0001 || (canAuto() && time >= idleAfter)) frame = requestAnimationFrame(animate);
+    else scheduleIdle();
   }
   function wake() { if (!frame && canRun()) { lastTime = 0; frame = requestAnimationFrame(animate); } }
   function syncMotion() {
     if (!section) return;
-    section.classList.toggle('motion-paused', paused || reduced.matches || !canRun() || dragging);
+    section.classList.toggle('motion-paused', !canAuto());
     motionButton.hidden = reduced.matches;
     motionButton.setAttribute('aria-pressed', String(paused));
     motionButton.setAttribute('aria-label', paused ? text.play : text.pause);
@@ -234,7 +250,8 @@
     motionButton.textContent = paused ? '▷' : 'Ⅱ';
     if (frame) cancelAnimationFrame(frame);
     frame = 0;
-    wake();
+    clearTimeout(idleTimer); idleTimer = 0;
+    if (Math.abs(target - current) > .0001) wake(); else scheduleIdle();
   }
   function settle() { idleAfter = performance.now() + 3500; if (reduced.matches) current = target; paint(); wake(); }
   function step(direction) { if (items.length > 1) { target = Math.round(target) + direction; settle(); } }
@@ -251,4 +268,5 @@
   orbitButton.addEventListener('click', () => setView(true));
   document.addEventListener('portfolio:filter', () => { if (active) refresh(); });
   window.addEventListener('hashchange', () => { if (location.hash.startsWith('#project-') && active) setView(false); });
+  document.addEventListener('portfolio:quiet', () => setView(false));
 })();

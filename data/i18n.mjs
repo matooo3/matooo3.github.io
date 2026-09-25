@@ -1,4 +1,5 @@
 import { projects } from './projects.mjs';
+import { caseStudies } from './case-studies.mjs';
 
 // German is the editorial source. Both complete HTML pages are generated at
 // build time, so language selection and all content also work without JS.
@@ -11,7 +12,7 @@ export const projectTranslations = {
   'matooo3/RepCounter': { description: 'Count repetitions, track workout time and stay focused on your set. One of my first web and Android projects.' },
   "matooo3/zero-shot-cxr-vlm": {"name": "Zero-Shot Chest X-Ray", "description": "Which findings can vision-language models identify without task-specific training? Comparing BioMedCLIP and MedCLIP with different prompting strategies on chest X-rays.", "detail": "A research project on zero-shot multi-label classification with BioMedCLIP and MedCLIP across CheXpert, NIH ChestX-ray14 and PadChest. We compared positive and negative prompts, LLM-generated descriptions and composed strategies. Evaluation shows that the benefit of a prompt strategy strongly depends on the model and dataset."},
   "matooo3/codex-ui": {"description": "A dedicated interface for agentic development: projects, chats and multiple coding agents in one place.", "detail": "A personal web app for orchestrating coding agents, managing projects and chats, and voice input. The visual preview is an illustrative demo with sample content."},
-  'matooo3/card-manager': { description: 'Manage cards, images and custom categories in a small web app. Data is stored locally in your browser.' },
+  'matooo3/card-manager': { description: 'Keep images of fitness, bank and QR cards in custom categories, ready to access on your phone. Stored locally in your browser.' },
   'matooo3/Gem-calculator-coc-': { description: 'Compare magic items: which purchase saves the most time per gem spent?' },
   "zaryar/AquaDefender": {"description": "Survive waves of pirates on an island, collect loot and upgrade your equipment. The goal: build a ship and escape."},
   "matooo3/hockey-env": {"name": "Hockey RL Agents", "description": "Developing and training reinforcement learning agents to face other agents in a provided hockey environment. The project concluded with a competition between teams.", "detail": "My contribution to the team: a Soft Actor-Critic (SAC) agent, training against a pool of different opponents and benchmarks to compare models. The trained agent competed against other teams’ agents in the final competition."},
@@ -32,7 +33,7 @@ const translations = new Map(Object.entries({
   "Zur Startseite": "Back to home",
   "Zur Projektliste": "View project list",
   "Mehr zum Projekt": "More about this project",
-  "Kleine Karten. Große Ordnung.": "Small cards. Big ideas.",
+  "Kleine Karten. Große Ordnung.": "Your cards. In one place.",
   "Ideen sammeln.": "Collect ideas.",
   "Favoriten": "Favourites",
   "Mehr Zeit pro Gem.": "More time per gem.",
@@ -44,7 +45,10 @@ const translations = new Map(Object.entries({
   "Zeit für eine Pause.": "Time for a break.",
   "Ein Klick. Ein neuer Weg.": "One click. A new path.",
   "Ein ruhiger Start.": "A calmer start.",
-  "Card Manager: Illustration einer Sammlung aus Bildern und Karten": "Card Manager: an illustration of image and card collections",
+  "Card Manager: Beispielansicht für lokal gespeicherte Fitness-, Bank- und QR-Karten": "Card Manager: sample fitness, bank and QR cards stored on the device",
+  "Fitnesskarte": "Fitness card",
+  "Meine Projekte ↗": "My projects ↗",
+  "Auf diesem Gerät gespeichert": "Saved on this device",
   "Gem Calculator: Vergleich von Zeitersparnis und Gem-Einsatz": "Gem Calculator: comparing time saved per gem spent",
   "Portfolio: Miniatur einer persönlichen Projektwebsite": "Portfolio: miniature personal project website",
   "Eieruhr: Illustration eines Fünf-Minuten-Timers": "Egg Timer: an illustration of a five-minute timer",
@@ -137,7 +141,7 @@ const translations = new Map(Object.entries({
   'Flutter · Persönliche Tagesplanung': 'Flutter · Personal daily planning',
   'Pencil2Pixel: Ein aus einer Skizze generiertes pinkes Flugzeug in einer Wolkenlandschaft': 'Pencil2Pixel: a pink aircraft in the clouds, generated from a sketch',
   'Die ursprüngliche handgezeichnete Flugzeugskizze': 'The original hand-drawn aircraft sketch',
-  'Alles beginnt mit einer Skizze.': 'It starts with a sketch.', 'Skizze → Bild': 'Sketch → Image',
+  'Alles beginnt mit einer Skizze.': 'It starts with a sketch.', 'Skizze → Bild': 'Sketch → Image', 'Skizze + Prompt → Bild': 'Sketch + Prompt → Image',
   'Weniger planen.': 'Less planning.', 'Bewusster essen.': 'More mindful meals.', '& Einkaufslisten': '& shopping lists',
   'Ein Gedanke.': 'A thought.', 'Einfach gesagt.': 'Simply spoken.', 'Sprache wird Text': 'Speech becomes text',
   'Projekt öffnen': 'Open project', 'Projektwebsite': 'Project website', 'App öffnen': 'Open app',
@@ -154,8 +158,13 @@ const translations = new Map(Object.entries({
   'Technologien, mit denen ich in meinen': 'Technologies I work with in my', 'eigenen und gemeinsamen Projekten arbeite.': 'personal and collaborative projects.',
   'Web & Apps': 'Web & Apps', 'Von der Browser-Idee zur mobilen Anwendung.': 'From a browser-based idea to a mobile application.',
   'KI & Daten': 'AI & Data', 'Modelle verstehen, ausprobieren und in Projekte bringen.': 'Understand models, experiment and put them to work in projects.',
-  'Systeme & Tools': 'Systems & Tools', 'Das Fundament hinter funktionierender Software.': 'The foundation behind working software.',
+  'Backend & Tools': 'Backend & Tools', 'Das Fundament hinter funktionierender Software.': 'The foundation behind working software.',
   'Konzeption und Steuerung autonomer Entwicklungsabläufe und integrierter Apps mit Codex, Grok Build, Claude Code (App und CLI) und Antigravity (App und CLI). Schwerpunkte sind Kontextmanagement, strukturierte Agent-Anweisungen, MCP, Plugins und die Integration von KI-Funktionen über APIs.': 'Designing and orchestrating autonomous development workflows and integrated apps with Codex, Grok Build, Claude Code (app and CLI) and Antigravity (app and CLI). Strong focus on context management, structured agent instructions, MCP, plugins and API-based AI integration.',
+  'Open-Source-LLMs und Speech-to-Text-Modelle auswählen, erproben und in eigene Anwendungen integrieren.': 'Selecting, exploring and integrating open-source LLMs and speech-to-text models into applications.',
+  'Open-Source-LLMs': 'Open-source LLMs', 'Speech-to-Text-Modelle': 'Speech-to-text models',
+  'Linux, Server & Netzwerke': 'Linux, Servers & Networks',
+  'Linux- und Server-Umgebungen einrichten, virtuelle Maschinen verwalten und Dienste vernetzen. Praktische Erfahrung mit Debian, Ubuntu und Proxmox sowie Grundlagen in Subnetzen, Firewall-Regeln und VPNs.': 'Setting up Linux servers, managing virtual machines and connecting services. Practical experience with Debian, Ubuntu and Proxmox, alongside foundations in subnets, firewall rules and VPNs.',
+  'Virtuelle Maschinen': 'Virtual machines', 'Subnetze': 'Subnets',
   'API- & KI-Integration': 'API & AI integration',
   'Dunkler Modus aktiv. Zum hellen Modus wechseln': 'Dark mode active. Switch to light mode',
   'Autonome Workflows': 'Autonomous workflows', 'Kontextmanagement': 'Context management',
@@ -172,6 +181,17 @@ const translations = new Map(Object.entries({
   'Mini-Projekt': 'Mini project',
 }));
 
+for (const study of Object.values(caseStudies)) {
+  study.de.forEach((pair, i) => pair.forEach((text, j) => translations.set(text, study.en[i][j])));
+}
+for (const [de, en] of Object.entries({
+  'Projekt im Fokus': 'Project in focus',
+  'Dein Tag. Mit mehr Klarheit.': 'Your day. With more clarity.',
+  'Heute im Fokus': 'Today’s focus', 'Geplante Schritte': 'Planned steps',
+  'Zeit für Bewegung': 'Time to move', 'Konzentriert arbeiten': 'Focused work', 'Den Tag reflektieren': 'Reflect on the day',
+  'Konzeptansicht · Beispieldaten': 'Concept view · Sample data',
+  'MyLifeGraph: Konzeptillustration einer Tagesplanung mit Beispieldaten': 'MyLifeGraph: concept illustration of daily planning with sample data'
+})) translations.set(de, en);
 for (const project of projects) {
   const english = projectTranslations[project.repo || project.name];
   if (!english) throw new Error(`Missing English project: ${project.name}`);
@@ -210,5 +230,5 @@ const flag = lang => lang === 'de'
 
 export function languageSwitcher(lang) {
   const label = lang === 'en' ? 'Select language. Current language: English' : 'Sprache wählen. Aktuelle Sprache: Deutsch';
-  return `<details class="language-switcher"><summary aria-label="${label}" title="${label}">${flag(lang)}<span>${lang.toUpperCase()}</span><span class="language-chevron" aria-hidden="true">⌄</span></summary><div class="language-options"><a href="/" lang="en" hreflang="en"${lang === 'en' ? ' aria-current="page"' : ''}>${flag('en')} English</a><a href="/de/" lang="de" hreflang="de"${lang === 'de' ? ' aria-current="page"' : ''}>${flag('de')} Deutsch</a></div></details>`;
+  return `<details class="language-switcher"><summary aria-label="${label}" title="${label}">${flag(lang)}<span>${lang.toUpperCase()}</span></summary><div class="language-options"><a href="/" lang="en" hreflang="en"${lang === 'en' ? ' aria-current="page"' : ''}>${flag('en')} English</a><a href="/de/" lang="de" hreflang="de"${lang === 'de' ? ' aria-current="page"' : ''}>${flag('de')} Deutsch</a></div></details>`;
 }

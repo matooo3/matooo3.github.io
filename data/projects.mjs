@@ -138,7 +138,7 @@ export const projects = [
       "JavaScript",
       "Local Storage"
     ],
-    "description": "Karten, Bilder und eigene Kategorien in einer kleinen Web-App verwalten. Die Daten werden lokal im Browser gespeichert.",
+    "description": "Fitness-, Bank- und QR-Karten als Bilder in eigenen Kategorien hinterlegen und auf dem Handy griffbereit halten. Lokal im Browser gespeichert.",
     "demo": "archiv/card-manager/index.html",
     "demoLabel": "App öffnen",
     "visual": "cards"

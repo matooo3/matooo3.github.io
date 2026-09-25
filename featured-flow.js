@@ -8,14 +8,14 @@
   const en = document.documentElement.lang === 'en';
   const words = en ? {
     standard: 'Standard', flow: 'Flow view', view: 'Featured project view',
-    eyebrow: 'IDEAS IN MOTION', hint: 'Scroll or drag to explore · Click to discover',
+    eyebrow: 'IDEAS IN MOTION', hint: 'Drag or use ← → · Shift + scroll to explore',
     touch: 'Swipe to explore · Tap to discover', prev: 'Previous', next: 'Next',
     pause: 'Pause animation', play: 'Play animation', gallery: 'View full gallery',
     end: 'There’s more to discover.', endText: 'Every project. A new perspective.',
     projects: 'projects', scene: 'Featured projects. Navigate with the left and right arrow keys. Enter opens the selected project.'
   } : {
     standard: 'Standard', flow: 'Flow-Ansicht', view: 'Ansicht der ausgewählten Projekte',
-    eyebrow: 'IDEEN IN BEWEGUNG', hint: 'Scrollen oder ziehen · Anklicken zum Entdecken',
+    eyebrow: 'IDEEN IN BEWEGUNG', hint: 'Ziehen oder ← → · Umschalt + Scrollen',
     touch: 'Wischen zum Entdecken · Antippen zum Öffnen', prev: 'Zurück', next: 'Weiter',
     pause: 'Animation pausieren', play: 'Animation starten', gallery: 'Zur ganzen Galerie',
     end: 'Da ist noch mehr.', endText: 'Alle Projekte. Eine neue Perspektive.',
@@ -35,11 +35,13 @@
   let visible = true, paused = false, hovered = false, dragging = false, moved = false;
   let pointer, startX = 0, startY = 0, startTarget = 0, suppressClick = 0, wheelAt = 0, wheelTotal = 0, serial = 0;
   const clamp = value => Math.max(0, Math.min(cards.length - 1, value));
-  const canRun = () => active && visible && !document.hidden;
+  const canRun = () => active && visible && !document.hidden && !document.querySelector('dialog[open]');
   const canAuto = () => canRun() && !paused && !reduced.matches && !hovered && !dragging && !stage.contains(document.activeElement) && target < cards.length - 1;
 
   function cloneVisual(source) {
     const copy = source.cloneNode(true), prefix = `flow-${++serial}-`;
+    copy.querySelectorAll('.hover-demo-layer').forEach(layer => layer.remove());
+    for (const visual of [copy, ...copy.querySelectorAll('.is-demo-playing, .is-preview-hovered')]) visual.classList.remove('is-demo-playing', 'is-preview-hovered');
     const ids = new Map([...copy.querySelectorAll('[id]')].map(node => [node.id, prefix + node.id]));
     for (const node of [copy, ...copy.querySelectorAll('*')]) {
       if (node.id) node.id = ids.get(node.id) || prefix + node.id;
@@ -63,6 +65,7 @@
     flow.innerHTML = `<div class="flow-stage" tabindex="0" role="region" aria-roledescription="carousel" aria-label="${words.scene}"><div class="flow-atmosphere" aria-hidden="true"><div class="flow-light"></div><div class="flow-lines"></div><div class="flow-dust"></div></div><div class="flow-eyebrow">${words.eyebrow}<span aria-hidden="true">— →</span></div><div class="flow-deck"></div><div class="flow-hint"><span class="flow-desktop-hint">${words.hint}</span><span class="flow-touch-hint">${words.touch}</span></div></div><div class="flow-navigation"><button type="button" class="flow-arrow" data-flow-prev aria-label="${words.prev}">←</button><a class="flow-current"><span class="flow-counter" role="status" aria-live="polite" aria-atomic="true"></span><strong></strong></a><button type="button" class="flow-arrow" data-flow-next aria-label="${words.next}">→</button><button type="button" class="flow-pause" aria-pressed="false" aria-label="${words.pause}" title="${words.pause}">Ⅱ</button></div>`;
     first.before(flow);
     stage = flow.querySelector('.flow-stage'); deck = flow.querySelector('.flow-deck');
+    stage.before(flow.querySelector('.flow-navigation'));
     currentLink = flow.querySelector('.flow-current'); counter = flow.querySelector('.flow-counter');
     prev = flow.querySelector('[data-flow-prev]'); next = flow.querySelector('[data-flow-next]'); pauseButton = flow.querySelector('.flow-pause');
     prev.addEventListener('click', () => go(Math.round(target) - 1));
@@ -81,6 +84,7 @@
     stage.addEventListener('focusout', () => queueMicrotask(sync));
     stage.addEventListener('wheel', event => {
       if (event.ctrlKey || !active) return;
+      if (!event.shiftKey && Math.abs(event.deltaY) >= Math.abs(event.deltaX)) return;
       const delta = (Math.abs(event.deltaX) > Math.abs(event.deltaY) ? event.deltaX : event.deltaY) * (event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? stage.clientHeight : 1);
       const direction = Math.sign(delta), destination = clamp(Math.round(target) + direction);
       if (destination === Math.round(target)) return; // Let the page scroll past either end.
@@ -109,6 +113,7 @@
     new ResizeObserver(() => { spacing = Math.min(435, stage.clientWidth * .77); paint(); }).observe(stage);
     new IntersectionObserver(entries => { visible = entries[0].isIntersecting; sync(); }, { threshold: .08 }).observe(stage);
     document.addEventListener('visibilitychange', sync);
+    document.addEventListener('portfolio:dialog', sync);
     reduced.addEventListener('change', () => { current = target = Math.round(target); paint(); sync(); });
   }
   function finishDrag() {
@@ -212,6 +217,7 @@
   }
   standardButton.addEventListener('click', () => setView(false));
   flowButton.addEventListener('click', () => setView(true));
+  document.addEventListener('portfolio:quiet', () => setView(false));
   document.addEventListener('portfolio:featured', event => {
     expanded = event.detail.expanded;
     if (active) more.hidden = true;

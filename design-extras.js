@@ -22,83 +22,230 @@ export function createBlueprint() {
 export function createSculpture(figure) {
   const en = document.documentElement.lang === 'en', motion = matchMedia('(prefers-reduced-motion: reduce)');
   const host = document.createElement('div'); host.className = 'm-sculpture';
-  host.innerHTML = `<div class="sculpture-label"><strong>MATZE / FORM STUDY</strong>${en ? 'IDEAS TAKE SHAPE' : 'IDEEN NEHMEN FORM AN'}</div><canvas class="sculpture-canvas" tabindex="0" role="img" aria-label="${en ? 'Interactive M sculpture. Use arrow keys to rotate; Home to reset.' : 'Interaktive M-Skulptur. Mit Pfeiltasten drehen; mit Pos1 zurücksetzen.'}"></canvas><div class="sculpture-controls" role="group" aria-label="Material"><button type="button" data-material="metal" aria-pressed="true">${en ? 'Metal' : 'Metall'}</button><button type="button" data-material="glass" aria-pressed="false">${en ? 'Glass' : 'Glas'}</button><button type="button" data-material="light" aria-pressed="false">${en ? 'Light' : 'Licht'}</button></div><p class="sculpture-hint">${en ? 'MOVE TO EXPLORE · ↑ ↓ ← →' : 'BEWEGEN & ENTDECKEN · ↑ ↓ ← →'}</p>`;
-  const canvas = host.querySelector('canvas'), ctx = canvas.getContext('2d', { alpha: false });
-  if (!ctx) throw Error('Canvas unavailable');
-  figure.append(host); figure.classList.add('sculpture-active');
-  // Extruded, bevel-edged polygon. Geometry is projected once per interaction frame.
-  const outline = [[-1,-1],[-.48,-1],[0,-.12],[.48,-1],[1,-1],[1,1],[.49,1],[.49,-.06],[0,.71],[-.49,-.06],[-.49,1],[-1,1]];
-  let width = 0, height = 0, frame = 0, visible = false, destroyed = false, material = 'metal';
-  let yaw = -.32, pitch = -.14, targetYaw = yaw, targetPitch = pitch, activePointer = null, lastX = 0;
-  const clamp = (n,a,b) => Math.max(a,Math.min(b,n));
-  function project(x,y,z) {
-    const cy = Math.cos(yaw), sy = Math.sin(yaw), cp = Math.cos(pitch), sp = Math.sin(pitch);
-    const xx = x*cy+z*sy, zz = z*cy-x*sy, yy = y*cp-zz*sp, depth = y*sp+zz*cp;
-    const scale = Math.min(width*.28,height*.27) * 5/(5-depth);
-    return [width*.5+xx*scale,height*.49+yy*scale,depth];
+  host.innerHTML = `<div class="sculpture-label"><strong>MATZE / FORM STUDY</strong>${en ? 'IDEAS TAKE SHAPE' : 'IDEEN NEHMEN FORM AN'}</div><canvas class="sculpture-canvas" tabindex="0" role="img" aria-label="${en ? 'Interactive M sculpture. Drag to rotate freely in any direction. Arrow keys rotate; Home resets.' : 'Interaktive M-Skulptur. Ziehen zum freien Drehen in alle Richtungen. Pfeiltasten drehen; Pos1 setzt zurück.'}"></canvas><button type="button" class="sculpture-reset" title="${en ? 'Reset view' : 'Ansicht zurücksetzen'}" aria-label="${en ? 'Reset view' : 'Ansicht zurücksetzen'}">↺</button><div class="sculpture-controls" role="group" aria-label="Material"><button type="button" data-material="metal" aria-pressed="true">${en ? 'Metal' : 'Metall'}</button><button type="button" data-material="glass" aria-pressed="false">${en ? 'Glass' : 'Glas'}</button><button type="button" data-material="liquid" aria-pressed="false">Liquid Glass</button><button type="button" data-material="light" aria-pressed="false">${en ? 'Light' : 'Licht'}</button></div><p class="sculpture-hint">${en ? 'DRAG TO ROTATE 360° · ↑ ↓ ← →' : 'ZIEHEN ZUM DREHEN · 360° · ↑ ↓ ← →'}</p><p class="sculpture-status" role="status" hidden>${en ? 'Restoring the 3D view…' : '3D-Ansicht wird wiederhergestellt…'}</p>`;
+  const canvas = host.querySelector('canvas');
+  const gl = canvas.getContext('webgl', { alpha: false, antialias: true, powerPreference: 'low-power' });
+  if (!gl) throw Error('WebGL unavailable');
+
+  // Closed, triangulated solid with actual rounded bevels. A depth buffer handles
+  // occlusion at every angle, including the concave valleys of the letter.
+  const outline = [[-1,1],[-.48,1],[0,.12],[.48,1],[1,1],[1,-1],[.49,-1],[.49,.06],[0,-.71],[-.49,.06],[-.49,-1],[-1,-1]].reverse();
+  const cross = (a,b,c) => (b[0]-a[0])*(c[1]-a[1])-(b[1]-a[1])*(c[0]-a[0]);
+  const normalize = a => { const d = Math.hypot(...a); return a.map(v => v/d); };
+  const edges = outline.map((p,i) => { const q=outline[(i+1)%outline.length]; return normalize([q[1]-p[1],p[0]-q[0]]); });
+  const miters = outline.map((_,i) => { const a=edges[(i+edges.length-1)%edges.length], b=edges[i], d=1+a[0]*b[0]+a[1]*b[1]; return [(a[0]+b[0])/d,(a[1]+b[1])/d]; });
+  const bevel=.065, halfDepth=.27, steps=5, vertices=[];
+  const inset = outline.map((p,i)=>p.map((v,k)=>v-miters[i][k]*bevel));
+  function triangle(a,b,c) { vertices.push(...a,...b,...c); }
+  function cap(sign) {
+    const remaining=inset.map((_,i)=>i);
+    while (remaining.length>2) {
+      const ear=remaining.findIndex((b,j)=>{
+        const a=remaining[(j+remaining.length-1)%remaining.length], c=remaining[(j+1)%remaining.length];
+        return cross(inset[a],inset[b],inset[c])>1e-8 && !remaining.some(p=>p!==a&&p!==b&&p!==c&&cross(inset[a],inset[b],inset[p])>=-1e-8&&cross(inset[b],inset[c],inset[p])>=-1e-8&&cross(inset[c],inset[a],inset[p])>=-1e-8);
+      });
+      if(ear<0) throw Error('Invalid sculpture geometry');
+      const ids=[remaining[(ear+remaining.length-1)%remaining.length],remaining[ear],remaining[(ear+1)%remaining.length]];
+      if(sign<0) ids.reverse();
+      triangle(...ids.map(i=>[...inset[i],sign*halfDepth,0,0,sign]));
+      remaining.splice(ear,1);
+    }
   }
-  function path(points) { ctx.beginPath(); points.forEach((p,i)=>i ? ctx.lineTo(p[0],p[1]) : ctx.moveTo(p[0],p[1])); ctx.closePath(); }
-  function paint() {
-    const bg = ctx.createRadialGradient(width*.48,height*.36,0,width*.5,height*.45,width*.8);
-    bg.addColorStop(0,material==='light'?'#24364c':'#283e45'); bg.addColorStop(1,'#0c161d'); ctx.fillStyle=bg; ctx.fillRect(0,0,width,height);
-    // A quiet plinth and construction orbit ground the floating object.
-    ctx.save(); ctx.translate(width*.5,height*.80); ctx.scale(1,.17);
-    const shadow=ctx.createRadialGradient(0,0,0,0,0,width*.3);shadow.addColorStop(0,'#02080ed0');shadow.addColorStop(1,'#02080e00');ctx.fillStyle=shadow;ctx.fillRect(-width*.4,-width*.4,width*.8,width*.8);
-    ctx.strokeStyle=material==='light'?'#97cbef50':'#b9c5c32b';ctx.lineWidth=1;ctx.beginPath();ctx.arc(0,0,width*.34,0,Math.PI*2);ctx.stroke();ctx.restore();
-    const front=outline.map(([x,y])=>project(x,y,.22)), back=outline.map(([x,y])=>project(x,y,-.22));
-    const faces=outline.map((_,i)=>{const j=(i+1)%outline.length;return {p:[back[i],back[j],front[j],front[i]],index:i};});
-    faces.push({p:back,index:13},{p:front,index:12});
-    faces.sort((a,b)=>a.p.reduce((s,p)=>s+p[2],0)/a.p.length-b.p.reduce((s,p)=>s+p[2],0)/b.p.length);
-    for(const face of faces){
-      const p=face.p;path(p);
-      const gradient=ctx.createLinearGradient(width*(.15+yaw*.12),height*.2,width*.86,height*.76);
-      const frontFace=face.index===12;
-      if(material==='metal'){
-        const colors=frontFace?['#fbecd0','#a89c86','#e9e0cb','#697679','#d4ba8e']:['#829493','#344850','#a9ac9c','#283840','#8e958a'];
-        colors.forEach((c,i)=>gradient.addColorStop([0,.31,.48,.56,1][i],c));
-      }else if(material==='glass'){
-        ['#c3f4edc9','#488cac80','#b2eaf67d','#27637bce','#cbf2ebad'].forEach((c,i)=>gradient.addColorStop([0,.28,.45,.63,1][i],c));
+  cap(1); cap(-1);
+  const rings=[];
+  for(let j=0;j<=steps;j++) { const a=Math.PI/2-j/steps*Math.PI/2; rings.push({d:bevel*(1-Math.cos(a)),z:halfDepth-bevel+bevel*Math.sin(a),side:Math.cos(a),nz:Math.sin(a)}); }
+  for(let j=0;j<=steps;j++) { const a=j/steps*Math.PI/2; rings.push({d:bevel*(1-Math.cos(a)),z:-halfDepth+bevel-bevel*Math.sin(a),side:Math.cos(a),nz:-Math.sin(a)}); }
+  for(let r=0;r<rings.length-1;r++) for(let i=0;i<outline.length;i++) {
+    const j=(i+1)%outline.length;
+    // Keep the long side planes flat; smooth normals only around the bevel.
+    const vertex=(index,ring)=>[outline[index][0]-miters[index][0]*ring.d,outline[index][1]-miters[index][1]*ring.d,ring.z,edges[i][0]*ring.side,edges[i][1]*ring.side,ring.nz];
+    const a=vertex(i,rings[r]),b=vertex(j,rings[r]),c=vertex(j,rings[r+1]),d=vertex(i,rings[r+1]);
+    triangle(a,d,c); triangle(a,c,b);
+  }
+  const mesh=new Float32Array(vertices);
+  const vertexSource=`
+    attribute vec3 aPosition, aNormal;
+    uniform vec2 uResolution;
+    uniform mat3 uRotation;
+    uniform float uPass;
+    varying vec3 vPosition, vNormal;
+    varying float vBevel;
+    void main(){
+      vPosition=uRotation*aPosition; vNormal=uRotation*aNormal; vBevel=1.-abs(aNormal.z);
+      if(uPass<.5){gl_Position=vec4(aPosition.xy,0.,1.);return;}
+      float w=4.8-vPosition.z;
+      float scale=min(uResolution.x*.29,uResolution.y*.24);
+      gl_Position=vec4(vPosition.xy*scale*2./uResolution*4.8,1.01005025*w-.201005,w);
+    }`;
+  const fragmentSource=`
+    precision highp float;
+    uniform vec2 uResolution;
+    uniform float uMaterial, uPass;
+    uniform sampler2D uBack;
+    varying vec3 vPosition, vNormal;
+    varying float vBevel;
+    vec3 background(vec2 uv){
+      vec2 p=(uv-vec2(.47,.63))*vec2(1.,.85);
+      vec3 c=mix(vec3(.035,.058,.071),vec3(.135,.195,.209),exp(-dot(p,p)*5.5));
+      c+=vec3(.052,.031,.012)*exp(-dot(uv-vec2(.87,.28),uv-vec2(.87,.28))*13.);
+      if(uMaterial>1.5&&uMaterial<2.5){
+        // A soft studio backdrop makes the lensing visible through clear glass.
+        vec2 cool=(uv-vec2(.25,.62))/vec2(.34,.30);
+        vec2 warm=(uv-vec2(.76,.40))/vec2(.29,.34);
+        c+=vec3(.045,.105,.16)*exp(-dot(cool,cool));
+        c+=vec3(.105,.055,.075)*exp(-dot(warm,warm));
+        float arc=exp(-pow((uv.y-.48-.12*sin(uv.x*5.))/.038,2.));
+        c+=vec3(.022,.035,.047)*arc;
+      }
+      vec2 floor=(uv-vec2(.5,.205))/vec2(.34,.04);
+      c*=1.-.48*exp(-dot(floor,floor)*1.6);
+      float ring=exp(-pow((length(floor)-1.)*32.,2.));
+      return c+vec3(.10,.14,.15)*ring;
+    }
+    vec3 environment(vec3 r, float rough){
+      vec3 c=mix(vec3(.08,.12,.145),vec3(.52,.63,.66),smoothstep(-.75,.85,r.y));
+      // Large studio softboxes, with a warm key and a cool rim. Reflections
+      // follow the surface normal instead of sliding a gradient over the image.
+      vec3 key=normalize(vec3(-.65,.65,1.));
+      vec3 rim=normalize(vec3(.9,.15,.35));
+      c+=vec3(1.,.86,.68)*1.8*pow(max(0.,dot(r,key)),mix(95.,12.,rough));
+      c+=vec3(.68,.86,1.)*1.5*pow(max(0.,dot(r,rim)),mix(140.,18.,rough));
+      float strip=exp(-pow((r.x+.28)/mix(.04,.19,rough),2.))*smoothstep(-.6,.35,r.y);
+      c+=vec3(.82,.94,1.)*strip*1.3;
+      c+=vec3(.6,.72,.85)*.35*pow(max(0.,dot(r,normalize(vec3(-.6,.2,-1.)))),10.);
+      c+=vec3(.92,.96,1.)*1.4*pow(max(0.,dot(r,normalize(vec3(-.75,-.4,.8)))),mix(32.,8.,rough));
+      float ribbon=exp(-pow((r.x+.63)/mix(.045,.13,rough),2.))*smoothstep(-.95,-.3,r.y);
+      c+=vec3(1.,.94,.82)*ribbon*2.1;
+      return c;
+    }
+    void main(){
+      vec2 uv=gl_FragCoord.xy/uResolution;
+      if(uPass<.5){gl_FragColor=vec4(background(uv),1.);return;}
+      vec3 n=normalize(vNormal),v=normalize(vec3(0.,0.,4.8)-vPosition);
+      if(uPass<1.5){gl_FragColor=vec4(n*.5+.5,(vPosition.z+2.)*.25);return;}
+      float facing=max(0.,dot(n,v)),fresnel=pow(1.-facing,5.);
+      vec3 r=reflect(-v,n),color;
+      if(uMaterial>.5&&uMaterial<2.5){
+        vec4 back=texture2D(uBack,uv);
+        float thickness=max(.02,vPosition.z-(back.a*4.-2.));
+        vec3 ray=refract(-v,n,1./1.46);
+        bool liquid=uMaterial>1.5;
+        vec2 shift=(ray.xy+v.xy)*thickness*(liquid?.19:.065);
+        vec3 transmitted=background(uv+shift);
+        vec3 absorption=uMaterial<1.5?vec3(.72,.17,.10):vec3(.045,.027,.018);
+        transmitted*=exp(-absorption*thickness);
+        vec3 bn=normalize(back.rgb*2.-1.);
+        vec3 backLight=environment(reflect(-v,-bn),.04);
+        float f=.055+.945*fresnel;
+        color=mix(transmitted,environment(r,.035)*.86,f);
+        color+=backLight*.055*(1.-f);
+        color+=vec3(.57,.81,.84)*pow(1.-facing,3.)*.085;
+        if(liquid){
+          // Liquid Glass-inspired lensing: a clear centre, softly polished edges,
+          // broader specular highlights and very restrained colour separation.
+          float edge=smoothstep(.02,.85,vBevel);
+          vec2 dispersion=n.xy*edge*.0025;
+          transmitted=vec3(background(uv+shift+dispersion).r,transmitted.g,background(uv+shift-dispersion).b);
+          vec3 softReflection=environment(r,.17);
+          float reflection=.075+.62*fresnel+.14*edge;
+          color=mix(transmitted,softReflection*.84,clamp(reflection,0.,.8));
+          color+=backLight*.024*(1.-fresnel);
+          float rim=pow(1.-facing,2.5);
+          float key=pow(max(0.,dot(r,normalize(vec3(-.6,.7,.65)))),18.);
+          color+=vec3(.84,.93,1.)*(rim*.17+edge*(.07+key*.20));
+        }
       }else{
-        ['#f5f4ff','#82bdea','#b3a1ed','#416eaa','#e1c1f1'].forEach((c,i)=>gradient.addColorStop([0,.29,.48,.65,1][i],c));
+        float diffuse=.35+.65*max(0.,dot(n,normalize(vec3(-.6,.8,1.))));
+        vec3 base=uMaterial<.5?vec3(.73,.63,.46):mix(vec3(.31,.58,.82),vec3(.72,.52,.81),.5+.5*sin(n.x*3.+n.y*2.));
+        vec3 reflection=environment(r,uMaterial<.5?.22:.13);
+        color=base*(diffuse*.26+reflection*.72);
+        color+=environment(r,.015)*(.025+.18*fresnel);
+        color=color/(vec3(1.)+color*.42);
       }
-      ctx.fillStyle=gradient;ctx.fill();
-      ctx.strokeStyle=material==='glass'?'#d3ffffa8':material==='light'?'#e7e1ffcf':'#ffeed575';ctx.lineWidth=frontFace?1.4:.65;ctx.stroke();
-      if(frontFace){
-        ctx.save();path(p);ctx.clip();
-        const glint=ctx.createLinearGradient(0,height*.23,width,height*.65);glint.addColorStop(0,'#ffffff00');glint.addColorStop(.43+yaw*.12,'#ffffff00');glint.addColorStop(.49+yaw*.12,'#ffffff70');glint.addColorStop(.53+yaw*.12,'#ffffff00');glint.addColorStop(1,'#ffffff00');ctx.fillStyle=glint;ctx.fillRect(0,0,width,height);ctx.restore();
-        // Inset contour suggests a machined bevel without expensive image filters.
-        path(outline.map(([x,y])=>project(x*.975,y*.975,.225)));ctx.strokeStyle=material==='glass'?'#ebffff78':'#fff8e93b';ctx.lineWidth=.8;ctx.stroke();
+      gl_FragColor=vec4(color,1.);
+    }`;
+  let program, buffer, quad, backTexture, backDepth, backTarget, uniforms, position, normal;
+  function resources() {
+    const shaders=[];
+    try {
+      for(const [type,source] of [[gl.VERTEX_SHADER,vertexSource],[gl.FRAGMENT_SHADER,fragmentSource]]) {
+        const shader=gl.createShader(type); shaders.push(shader); gl.shaderSource(shader,source); gl.compileShader(shader);
+        if(!gl.getShaderParameter(shader,gl.COMPILE_STATUS)) throw Error(gl.getShaderInfoLog(shader));
       }
-    }
-    if(material==='light'){
-      ctx.globalCompositeOperation='screen';const g=ctx.createRadialGradient(width*.45,height*.43,0,width*.45,height*.43,width*.42);g.addColorStop(0,'#99baff1b');g.addColorStop(1,'#99baff00');ctx.fillStyle=g;ctx.fillRect(0,0,width,height);ctx.globalCompositeOperation='source-over';
-    }
+      program=gl.createProgram(); shaders.forEach(s=>gl.attachShader(program,s)); gl.linkProgram(program);
+      if(!gl.getProgramParameter(program,gl.LINK_STATUS)) throw Error(gl.getProgramInfoLog(program));
+      gl.useProgram(program);
+      position=gl.getAttribLocation(program,'aPosition'); normal=gl.getAttribLocation(program,'aNormal');
+      uniforms=Object.fromEntries(['uResolution','uRotation','uMaterial','uPass','uBack'].map(name=>[name,gl.getUniformLocation(program,name)]));
+      buffer=gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER,buffer); gl.bufferData(gl.ARRAY_BUFFER,mesh,gl.STATIC_DRAW);
+      quad=gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER,quad); gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,1,-1,-1,1,-1,1,1,-1,1,1]),gl.STATIC_DRAW);
+      backTexture=gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D,backTexture);
+      gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.NEAREST); gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.NEAREST);
+      gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE); gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE);
+      backDepth=gl.createRenderbuffer(); backTarget=gl.createFramebuffer();
+    } catch(error) { dispose(); throw error; }
+    finally { shaders.forEach(s=>gl.deleteShader(s)); }
   }
-  function sculptureFrame(){frame=0;if(destroyed||!visible||document.hidden)return;
-    if(motion.matches){yaw=targetYaw;pitch=targetPitch;}else{yaw+=(targetYaw-yaw)*.16;pitch+=(targetPitch-pitch)*.16;}
-    paint();if(Math.abs(yaw-targetYaw)+Math.abs(pitch-targetPitch)>.001)wake();
+  function dispose() { gl.deleteBuffer(buffer);gl.deleteBuffer(quad);gl.deleteProgram(program);gl.deleteTexture(backTexture);gl.deleteRenderbuffer(backDepth);gl.deleteFramebuffer(backTarget); }
+  resources();
+  figure.append(host); figure.classList.add('sculpture-active');
+  let frame=0, visible=false, destroyed=false, lost=false, material=0;
+  // Screen-space quaternion rotations avoid both angle limits and gimbal lock.
+  const multiply=(a,b)=>[a[3]*b[0]+a[0]*b[3]+a[1]*b[2]-a[2]*b[1],a[3]*b[1]-a[0]*b[2]+a[1]*b[3]+a[2]*b[0],a[3]*b[2]+a[0]*b[1]-a[1]*b[0]+a[2]*b[3],a[3]*b[3]-a[0]*b[0]-a[1]*b[1]-a[2]*b[2]];
+  const initial=normalize(multiply([Math.sin(.11),0,0,Math.cos(.11)],[0,Math.sin(-.18),0,Math.cos(-.18)]));
+  let orientation=[...initial],target=[...initial],activePointer=null,lastX=0,lastY=0;
+  function matrix([x,y,z,w]) { return new Float32Array([1-2*(y*y+z*z),2*(x*y+z*w),2*(x*z-y*w),2*(x*y-z*w),1-2*(x*x+z*z),2*(y*z+x*w),2*(x*z+y*w),2*(y*z-x*w),1-2*(x*x+y*y)]); }
+  function paint() {
+    gl.useProgram(program); gl.viewport(0,0,canvas.width,canvas.height);
+    gl.uniform2f(uniforms.uResolution,canvas.width,canvas.height); gl.uniformMatrix3fv(uniforms.uRotation,false,matrix(orientation));
+    gl.uniform1f(uniforms.uMaterial,material); gl.uniform1i(uniforms.uBack,0);
+    gl.bindFramebuffer(gl.FRAMEBUFFER,null); gl.disable(gl.DEPTH_TEST); gl.disable(gl.CULL_FACE);
+    gl.bindBuffer(gl.ARRAY_BUFFER,quad); gl.enableVertexAttribArray(position); gl.vertexAttribPointer(position,2,gl.FLOAT,false,0,0); gl.disableVertexAttribArray(normal); gl.vertexAttrib3f(normal,0,0,1);
+    gl.uniform1f(uniforms.uPass,0); gl.drawArrays(gl.TRIANGLES,0,6);
+    gl.bindBuffer(gl.ARRAY_BUFFER,buffer); gl.vertexAttribPointer(position,3,gl.FLOAT,false,24,0); gl.enableVertexAttribArray(normal); gl.vertexAttribPointer(normal,3,gl.FLOAT,false,24,12);
+    gl.enable(gl.DEPTH_TEST); gl.enable(gl.CULL_FACE); gl.depthFunc(gl.LESS); gl.clearDepth(1);
+    if(material===1||material===2) {
+      gl.bindTexture(gl.TEXTURE_2D,null); gl.bindFramebuffer(gl.FRAMEBUFFER,backTarget); gl.clearColor(.5,.5,.5,0); gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
+      gl.cullFace(gl.FRONT); gl.uniform1f(uniforms.uPass,1); gl.drawArrays(gl.TRIANGLES,0,mesh.length/6);
+    }
+    gl.bindFramebuffer(gl.FRAMEBUFFER,null); gl.clear(gl.DEPTH_BUFFER_BIT); gl.cullFace(gl.BACK);
+    gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D,backTexture); gl.uniform1f(uniforms.uPass,2); gl.drawArrays(gl.TRIANGLES,0,mesh.length/6);
   }
-  function wake(){if(!frame&&!destroyed&&visible&&!document.hidden)frame=requestAnimationFrame(sculptureFrame);}
+  function sculptureFrame(){
+    frame=0;if(destroyed||lost||!visible||document.hidden)return;
+    let dot=orientation.reduce((sum,v,i)=>sum+v*target[i],0);
+    if(dot<0){target=target.map(v=>-v);dot=-dot;}
+    const settled=dot>.9999999;
+    orientation=motion.matches||activePointer!==null||settled?[...target]:normalize(orientation.map((v,i)=>v+(target[i]-v)*.23));
+    paint();if(!settled&&!motion.matches&&activePointer===null)wake();
+  }
+  function wake(){if(!frame&&!destroyed&&!lost&&visible&&!document.hidden)frame=requestAnimationFrame(sculptureFrame);}
   function stop(){if(frame)cancelAnimationFrame(frame);frame=0;}
-  function resize(){const rect=host.getBoundingClientRect();width=rect.width;height=rect.height;const dpr=Math.min(devicePixelRatio||1,1.5,1000/Math.max(1,width));canvas.width=Math.round(width*dpr);canvas.height=Math.round(height*dpr);ctx.setTransform(dpr,0,0,dpr,0,0);wake();}
-  function move(e){
-    if(motion.matches)return;
-    if(e.pointerType==='touch'&&activePointer!==e.pointerId)return;
-    if(activePointer===e.pointerId){targetYaw=clamp(targetYaw+(e.clientX-lastX)*.006,-1.05,1.05);lastX=e.clientX;}
-    else{const r=canvas.getBoundingClientRect();targetYaw=clamp((e.clientX-r.left)/r.width-.5,-.5,.5)*1.3;targetPitch=clamp((e.clientY-r.top)/r.height-.5,-.5,.5)*-.55;}
-    wake();
+  function resize(){
+    if(lost||destroyed)return;
+    const rect=host.getBoundingClientRect(), dpr=Math.min(devicePixelRatio||1,1.75,1100/Math.max(1,rect.width,rect.height));
+    canvas.width=Math.max(1,Math.round(rect.width*dpr));canvas.height=Math.max(1,Math.round(rect.height*dpr));
+    gl.bindTexture(gl.TEXTURE_2D,backTexture);gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,canvas.width,canvas.height,0,gl.RGBA,gl.UNSIGNED_BYTE,null);
+    gl.bindRenderbuffer(gl.RENDERBUFFER,backDepth);gl.renderbufferStorage(gl.RENDERBUFFER,gl.DEPTH_COMPONENT16,canvas.width,canvas.height);
+    gl.bindFramebuffer(gl.FRAMEBUFFER,backTarget);gl.framebufferTexture2D(gl.FRAMEBUFFER,gl.COLOR_ATTACHMENT0,gl.TEXTURE_2D,backTexture,0);gl.framebufferRenderbuffer(gl.FRAMEBUFFER,gl.DEPTH_ATTACHMENT,gl.RENDERBUFFER,backDepth);
+    gl.bindFramebuffer(gl.FRAMEBUFFER,null);wake();
   }
-  function down(e){if(e.button!==0||motion.matches)return;activePointer=e.pointerId;lastX=e.clientX;canvas.setPointerCapture(e.pointerId);}
-  function release(){activePointer=null;}
-  function reset(){if(activePointer!==null)return;targetYaw=-.32;targetPitch=-.14;wake();}
-  function keys(e){if(!['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','Home'].includes(e.key))return;e.preventDefault();if(e.key==='Home'){targetYaw=-.32;targetPitch=-.14;}else{targetYaw=clamp(targetYaw+(e.key==='ArrowLeft'?-.16:e.key==='ArrowRight'?.16:0),-1.05,1.05);targetPitch=clamp(targetPitch+(e.key==='ArrowUp'?-.12:e.key==='ArrowDown'?.12:0),-.5,.5);}wake();}
-  function choose(e){const button=e.target.closest('[data-material]');if(!button)return;material=button.dataset.material;host.querySelectorAll('[data-material]').forEach(b=>b.setAttribute('aria-pressed',String(b===button)));wake();}
+  function rotate(dx,dy){const length=Math.hypot(dx,dy);if(!length)return;const angle=length*.008,s=Math.sin(angle/2)/length;target=normalize(multiply([dy*s,dx*s,0,Math.cos(angle/2)],target));wake();}
+  function move(e){if(activePointer!==e.pointerId)return;rotate(e.clientX-lastX,e.clientY-lastY);lastX=e.clientX;lastY=e.clientY;}
+  function down(e){if(e.button!==0||activePointer!==null)return;activePointer=e.pointerId;lastX=e.clientX;lastY=e.clientY;canvas.setPointerCapture(e.pointerId);canvas.focus({preventScroll:true});host.classList.add('is-dragging');}
+  function release(e){if(activePointer!==e.pointerId)return;if(canvas.hasPointerCapture(e.pointerId))canvas.releasePointerCapture(e.pointerId);activePointer=null;host.classList.remove('is-dragging');}
+  function reset(){target=[...initial];wake();}
+  function keys(e){if(!['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','Home'].includes(e.key))return;e.preventDefault();if(e.key==='Home')reset();else rotate((e.key==='ArrowRight'?1:e.key==='ArrowLeft'?-1:0)*20,(e.key==='ArrowDown'?1:e.key==='ArrowUp'?-1:0)*20);}
+  function choose(e){const button=e.target.closest('[data-material]');if(!button)return;material={metal:0,glass:1,liquid:2,light:3}[button.dataset.material];host.querySelectorAll('[data-material]').forEach(b=>b.setAttribute('aria-pressed',String(b===button)));wake();}
   function visibility(){if(document.hidden)stop();else wake();}
-  function reduced(){stop();targetYaw=yaw=-.32;targetPitch=pitch=-.14;wake();}
-  canvas.addEventListener('pointermove',move,{passive:true});canvas.addEventListener('pointerdown',down);canvas.addEventListener('pointerup',release);canvas.addEventListener('pointercancel',release);canvas.addEventListener('lostpointercapture',release);canvas.addEventListener('pointerleave',reset);canvas.addEventListener('keydown',keys);host.addEventListener('click',choose);
+  function reduced(){stop();orientation=[...target];wake();}
+  function contextLost(e){e.preventDefault();lost=true;stop();host.querySelector('.sculpture-status').hidden=false;}
+  function contextRestored(){try{resources();lost=false;resize();host.querySelector('.sculpture-status').hidden=true;}catch{host.querySelector('.sculpture-status').textContent=en?'Please toggle the sculpture off and on to retry.':'Bitte die Skulptur aus- und wieder einschalten.';}}
+  canvas.addEventListener('pointermove',move,{passive:true});canvas.addEventListener('pointerdown',down);canvas.addEventListener('pointerup',release);canvas.addEventListener('pointercancel',release);canvas.addEventListener('lostpointercapture',release);canvas.addEventListener('keydown',keys);
+  canvas.addEventListener('webglcontextlost',contextLost);canvas.addEventListener('webglcontextrestored',contextRestored);host.addEventListener('click',choose);host.querySelector('.sculpture-reset').addEventListener('click',reset);
   document.addEventListener('visibilitychange',visibility);motion.addEventListener('change',reduced);
   const ro=new ResizeObserver(resize);ro.observe(host);
   const io=new IntersectionObserver(entries=>{visible=entries[0].isIntersecting;if(visible)wake();else stop();});io.observe(figure);
   resize();
-  return {destroy(){destroyed=true;stop();ro.disconnect();io.disconnect();document.removeEventListener('visibilitychange',visibility);motion.removeEventListener('change',reduced);host.remove();figure.classList.remove('sculpture-active');canvas.width=canvas.height=1;}};
+  return {destroy(){destroyed=true;stop();ro.disconnect();io.disconnect();document.removeEventListener('visibilitychange',visibility);motion.removeEventListener('change',reduced);canvas.removeEventListener('webglcontextlost',contextLost);canvas.removeEventListener('webglcontextrestored',contextRestored);dispose();gl.getExtension('WEBGL_lose_context')?.loseContext();host.remove();figure.classList.remove('sculpture-active');canvas.width=canvas.height=1;}};
 }
