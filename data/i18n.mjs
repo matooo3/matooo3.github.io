@@ -25,6 +25,8 @@ export const projectTranslations = {
 };
 
 const translations = new Map(Object.entries({
+  "Für Fragen, Austausch oder gemeinsame Projekte.": "For questions, a chat or a project together.",
+  "Schreib mir gerne.": "Feel free to get in touch.",
   "PROJEKTGALERIE": "PROJECT GALLERY",
   "Galerie öffnen": "Open gallery",
   "Projektgalerie": "Project gallery",
@@ -126,15 +128,15 @@ const translations = new Map(Object.entries({
   'Zum Inhalt springen': 'Skip to content',
   'Matze – Startseite': 'Matze – Home',
   'Hauptnavigation': 'Main navigation',
-  'Projekte': 'Projects', 'Über mich': 'About', 'Kontakt': 'Contact',
+  'Projekte': 'Projects', 'Über mich': 'About me', 'Kontakt': 'Contact',
   'Archiv': 'Archive', 'Dunkles Design aktivieren': 'Switch to dark mode', 'Menü öffnen': 'Open menu',
-  'NEUGIER ALS ANTRIEB': 'DRIVEN BY CURIOSITY', 'Tübingen, Deutschland': 'Tübingen, Germany',
+  "APPS, KI & AUTOMATISIERUNG": "APPS, AI & AUTOMATION", 'Tübingen, Deutschland': 'Tübingen, Germany',
   'Hi, ich bin Matze.': 'Hi, I’m Matze.', 'Aus Ideen': 'Turning ideas', 'wird': 'into', 'Wirklichkeit.': 'reality.',
   'Ich entwickle Apps, erkunde künstliche Intelligenz und baue Dinge, die meinen Alltag besser machen.': 'I build apps, explore artificial intelligence and create things that make everyday life better.',
   'Meine Projekte': 'Explore my projects',
   'Orangefarbene, verschlungene Skulptur als Sinnbild für Ideen, die sich verbinden': 'An intertwined orange sculpture representing ideas coming together',
-  'NEUGIER VERBINDET.': 'CURIOSITY CONNECTS.', 'Informatik im Kopf.': 'Computer science on my mind.', 'Bewegung im Alltag.': 'Movement in everyday life.',
-  'AUSGEWÄHLTE ARBEITEN': 'SELECTED WORK', 'Gebaut aus Neugier': 'Built from curiosity',
+  'NEUGIER VERBINDET.': 'CURIOSITY CONNECTS.',
+  'AUSGEWÄHLTE ARBEITEN': 'SELECTED WORK', "Was ich entwickle": "Built from curiosity",
   'Vom ersten kleinen Tool bis zur KI-App.': 'From a first small tool to an AI app.', 'Ein Einblick in das, woran ich arbeite.': 'A glimpse of what I’m working on.',
   'KI & Forschung': 'AI & Research', 'Studium': 'Learning',
   'MyLifeGraph: Vorschau des hellen Designsystems mit Planungselementen und Statusanzeigen': 'MyLifeGraph: a preview of the light design system with planning elements and status indicators',
@@ -148,12 +150,12 @@ const translations = new Map(Object.entries({
   'Rechner öffnen': 'Open calculator', 'Timer öffnen': 'Open timer', 'Demo öffnen': 'Open demo', 'Entwurf öffnen': 'Open concept',
   'Alte Version öffnen': 'Open original version', 'Android-Download': 'Android download', 'Privater Code': 'Private source', 'Privat': 'Private',
   'Alle Projekte entdecken': 'Explore all projects', 'DER MENSCH DAHINTER': 'THE PERSON BEHIND THE CODE',
-  'Mehr als': 'More than', 'nur Code': 'just code',
-  'Mich interessiert, wie Dinge funktionieren. Und wie man sie ein bisschen besser machen kann.': 'I’m curious about how things work. And how to make them a little better.',
-  'Ich studiere Informatik in Tübingen. In meinen Projekten treffen Softwareentwicklung, künstliche Intelligenz und praktische Ideen aufeinander – vom Trainingstool bis zum persönlichen Alltagsbegleiter.': 'I study computer science in Tübingen. My projects bring together software development, artificial intelligence and practical ideas — from workout tools to personal everyday companions.',
-  'Abseits des Bildschirms gehören Calisthenics, Fitness und Ernährung zu meinem Alltag. Mein Hintergrund im Rettungsdienst bringt eine weitere Perspektive mit: Technik ist dann spannend, wenn sie Menschen hilft.': 'Away from the screen, calisthenics, fitness and nutrition are part of my everyday life. My background as a paramedic adds another perspective: technology matters when it helps people.',
-  'Verstehen & bauen': 'Understand & build', 'Ideen ausprobieren und durch eigene Projekte lernen.': 'Try out ideas and learn by building projects.',
-  'Dranbleiben': 'Keep going', 'Im Training genauso wie an der nächsten Herausforderung.': 'In training and when tackling the next challenge.',
+
+  "Viele meiner Projekte entstehen, weil mir im Alltag eine passende App oder eine bestimmte Funktion fehlt. Dann baue ich sie selbst.": "Many of my projects start because I need an app or a feature that I can’t find. So I build it myself.",
+  "Ich studiere Informatik in Tübingen und beschäftige mich besonders mit KI und Agentic Engineering. Neben eigenen Apps entstehen dabei auch Projekte aus dem Studium und Experimente mit Open-Source-Modellen.": "I study computer science in Tübingen, with a particular interest in AI and agentic engineering. Alongside my own apps, I work on university projects and experiment with open-source models.",
+  "Neben der Informatik mache ich seit Jahren Calisthenics, fahre viel Fahrrad und im Winter Ski. Im FSJ habe ich mich zum Rettungssanitäter ausbilden lassen und war auch danach im Krankentransport und in der Notfallrettung tätig.": "Outside computer science, I’ve practised calisthenics for years, cycle regularly and ski in winter. During a voluntary social year, I trained as a Rettungssanitäter in Germany’s ambulance service and continued working in patient transport and emergency response afterwards.",
+  "Eigene Apps": "My own apps", "Anwendungen entwickeln, die ich selbst nutzen möchte.": "Building applications I want to use myself.",
+  "Calisthenics": "Calisthenics", "Seit Jahren ein fester Teil meines Alltags.": "Part of my everyday life for years.",
   'MEIN WERKZEUGKASTEN': 'MY TOOLKIT', 'Was ich mitbringe': 'What I bring',
   'Technologien, mit denen ich in meinen': 'Technologies I work with in my', 'eigenen und gemeinsamen Projekten arbeite.': 'personal and collaborative projects.',
   'Web & Apps': 'Web & Apps', 'Von der Browser-Idee zur mobilen Anwendung.': 'From a browser-based idea to a mobile application.',
@@ -176,8 +178,8 @@ const translations = new Map(Object.entries({
   'DIE ERSTE VERSION BLEIBT.': 'THE FIRST VERSION LIVES ON.', 'Jede Entwicklung hat einen Anfang.': 'Every journey has a beginning.',
   'Meine ursprüngliche Website, alle kleinen Apps und die komplette alte Sammlung.': 'My original website, the small apps and the complete original collection.',
   'Archiv · Alte Version': 'Archive · Original version', 'LASS UNS REDEN': 'LET’S TALK',
-  'Von einer Idee zum nächsten Projekt.': 'From an idea to the next project.', 'Gute Ideen beginnen': 'Good ideas start', 'mit einem': 'with a', 'Hallo.': 'hello.',
-  'E-Mail-Adresse kopieren': 'Copy email address', 'Zurück nach oben': 'Back to top', 'Mit Neugier gebaut. ©': 'Built with curiosity. ©', 'Nach oben': 'Back to top',
+  'Von einer Idee zum nächsten Projekt.': 'From an idea to the next project.',
+  'E-Mail-Adresse kopieren': 'Copy email address', 'Zurück nach oben': 'Back to top', 'Nach oben': 'Back to top',
   'Mini-Projekt': 'Mini project',
 }));
 
@@ -221,7 +223,7 @@ function translate(value) {
 export function englishHtml(html) {
   return html.replace(/<[^>]+>|[^<]+/g, token => token.startsWith('<')
     ? token.replace(/\b(alt|title|aria-label|placeholder|content)="([^"]*)"/g, (_, key, value) => `${key}="${translate(value)}"`)
-    : translate(token)).replace('<html lang="de"', '<html lang="en"');
+    : translate(token)).replace('<html lang="de"', '<html lang="en"').replace('href="#ueber-mich">About me</a>', 'href="#ueber-mich">About</a>');
 }
 
 const flag = lang => lang === 'de'
