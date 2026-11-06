@@ -117,18 +117,18 @@ export const projects = [
   },
   {
     "repo": "matooo3/codex-ui",
-    "name": "Codex UI",
+    "name": "Agent UI",
     "category": "web",
     "tags": [
       "TypeScript",
       "Web UI"
     ],
-    "description": "Eine eigene Oberfläche für agentische Entwicklung: Projekte, Chats und mehrere Coding-Agenten an einem Ort.",
+    "description": "Eine zentrale Oberfläche für verschiedene KI-Agenten: Projekte, Chats und Agenten-Teams auf dem eigenen Server – im Browser und auf Android.",
     "private": true,
     "featured": true,
     "visual": "codex",
     "featureOrder": 3,
-    "detail": "Eine persönliche Web-App zum Steuern von Coding-Agenten, Verwalten von Projekten und Chats sowie zur Spracheingabe. Die visuelle Vorschau zeigt eine gestaltete Demo mit Beispieldaten."
+    "detail": "Agent UI verbindet Codex, Claude Code, Grok und Antigravity in einer Oberfläche. Eigene Agentenprofile, Team- und Gruppenchats, Spracheingabe und eigene API-Verbindungen ergänzen die Projektverwaltung. Die Vorschau zeigt weiterhin eine illustrative Demo mit Beispieldaten."
   },
   {
     "repo": "matooo3/card-manager",
