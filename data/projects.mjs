@@ -170,7 +170,7 @@ export const projects = [
     "visual": "aqua",
     "featureOrder": 10,
     "demo": "https://kozlowskixy.itch.io/aquadefender",
-    "demoLabel": "Spiel ansehen"
+    "demoLabel": "Spiel testen"
   },
   {
     "repo": "matooo3/hockey-env",

@@ -84,7 +84,7 @@ const translations = new Map(Object.entries({
   "Mehr anzeigen": "Show more",
   "Weniger anzeigen": "Show less",
   "8 weitere Projekte": "8 more projects",
-  "Spiel ansehen": "View game",
+  "Spiel testen": "Try the game",
   "Projekte. Agenten. Fortschritt.": "Projects. Agents. Progress.",
   "Eine Idee wird zur App.": "An idea becomes an app.",
   "Baue eine hilfreiche App.": "Build a useful app.",
