@@ -29,12 +29,12 @@
   const designLabels = en ? {
     blueprint: ['Blueprint mode', 'A drafting grid, measured outlines and a brief scan.'],
     staticHero: ['Calm hero image', 'The original orange sculpture instead of the home-page animation.'],
-    bouncyM: ['Bouncy M', 'Low-gravity bouncing with reactive impacts. Drag to rotate and nudge.'],
+    bouncyM: ['Bouncy M', 'Grab and throw the soft M. It bends on impact and springs back.'],
     sculpture: ['M sculpture', 'Interactive hero artwork on the home page. Metal, glass or light.']
   } : {
     blueprint: ['Blueprint-Modus', 'Zeichenraster, Maßlinien und ein kurzer Scan.'],
     staticHero: ['Dezentes Titelbild', 'Die ursprüngliche orange Skulptur statt der Animation auf der Startseite.'],
-    bouncyM: ['Bouncy M', 'Low-Gravity-Hüpfen mit federnden Aufprallen. Ziehen zum Drehen und Anstoßen.'],
+    bouncyM: ['Bouncy M', 'Greif das weiche M und wirf es. Beim Aufprall verformt es sich und federt zurück.'],
     sculpture: ['M-Skulptur', 'Interaktives Titelmotiv auf der Startseite. Metall, Glas oder Licht.']
   };
   for (const name of ['blueprint', 'staticHero', 'sculpture', 'bouncyM']) {

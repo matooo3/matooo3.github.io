@@ -34,7 +34,7 @@ export function createSculpture(figure, { bouncy = false } = {}) {
   const normalize = a => { const d = Math.hypot(...a); return a.map(v => v/d); };
   const edges = outline.map((p,i) => { const q=outline[(i+1)%outline.length]; return normalize([q[1]-p[1],p[0]-q[0]]); });
   const miters = outline.map((_,i) => { const a=edges[(i+edges.length-1)%edges.length], b=edges[i], d=1+a[0]*b[0]+a[1]*b[1]; return [(a[0]+b[0])/d,(a[1]+b[1])/d]; });
-  const bevel=.065, halfDepth=.27, steps=5, vertices=[];
+  const bevel=.065, halfDepth=.27, steps=5, vertices=[], faces=[];
   const inset = outline.map((p,i)=>p.map((v,k)=>v-miters[i][k]*bevel));
   function triangle(a,b,c) { vertices.push(...a,...b,...c); }
   function cap(sign) {
@@ -46,6 +46,7 @@ export function createSculpture(figure, { bouncy = false } = {}) {
       });
       if(ear<0) throw Error('Invalid sculpture geometry');
       const ids=[remaining[(ear+remaining.length-1)%remaining.length],remaining[ear],remaining[(ear+1)%remaining.length]];
+      if(sign>0) faces.push(ids);
       if(sign<0) ids.reverse();
       triangle(...ids.map(i=>[...inset[i],sign*halfDepth,0,0,sign]));
       remaining.splice(ear,1);
@@ -103,8 +104,8 @@ export function createSculpture(figure, { bouncy = false } = {}) {
         c+=vec3(.022,.035,.047)*arc;
       }
       vec2 shadowCentre=mix(vec2(.5,.205),uShadow.xy,uBouncy);
-      vec2 floor=(uv-shadowCentre)/mix(vec2(.34,.04),vec2(.16,.022)*(1.+uShadow.z*.7),uBouncy);
-      c*=1.-mix(.48,.38*(1.-uShadow.z*.55),uBouncy)*exp(-dot(floor,floor)*1.6);
+      vec2 floor=(uv-shadowCentre)/mix(vec2(.34,.04),vec2(.105+.08*uShadow.z,.012+.026*uShadow.z),uBouncy);
+      c*=1.-mix(.48,.56*(1.-uShadow.z*.72),uBouncy)*exp(-dot(floor,floor)*1.6);
       float ring=exp(-pow((length(floor)-1.)*32.,2.));
       return c+vec3(.10,.14,.15)*ring*(1.-uBouncy);
     }
@@ -196,8 +197,47 @@ export function createSculpture(figure, { bouncy = false } = {}) {
   resources();
   figure.append(host); figure.classList.add('sculpture-active');
   let frame=0, visible=false, destroyed=false, lost=false, material=0, lastTime=0;
-  const bounce = createBounceSimulation();
-  let bouncePose = null, throwX=0, throwY=0;
+  const bounce = createSoftBody(outline, faces);
+  const elasticMesh = mesh.slice();
+  const bindings = [];
+  const surfaceEdges = [];
+  const edgeNormals = new Float32Array(outline.length*2);
+  for(let i=0;i<mesh.length;i+=6){
+    const distances=outline.map(([x,y])=>Math.hypot(mesh[i]-x,mesh[i+1]-y));
+    const corner=distances.indexOf(Math.min(...distances));
+    bindings.push(corner);
+    const previous=(corner+outline.length-1)%outline.length;
+    const alignment=edge=>edges[edge][0]*mesh[i+3]+edges[edge][1]*mesh[i+4];
+    surfaceEdges.push(alignment(previous)>alignment(corner)?previous:corner);
+  }
+  let meshDirty=false;
+  function updateMesh(pose){
+    if(!pose && !meshDirty)return;
+    if(pose){
+      const cosine=Math.cos(pose.roll),sine=Math.sin(pose.roll);
+      // Keep bevel highlights aligned with the actual bent side of the letter.
+      for(let edge=0;edge<outline.length;edge++){
+        const a=bounce.nodes[edge],b=bounce.nodes[(edge+1)%outline.length];
+        const dx=b.x-a.x,dy=b.y-a.y,length=Math.hypot(dx,dy);
+        edgeNormals[2*edge]=length?(cosine*dy-sine*dx)/length:edges[edge][0];
+        edgeNormals[2*edge+1]=length?(-sine*dy-cosine*dx)/length:edges[edge][1];
+      }
+      for(let i=0;i<mesh.length;i+=6){
+        const n=bounce.nodes[bindings[i/6]];
+        const dx=(n.x-pose.x)/pose.unit,dy=(n.y-pose.y)/pose.unit;
+        elasticMesh[i]=mesh[i]-n.rx+cosine*dx+sine*dy;
+        elasticMesh[i+1]=mesh[i+1]-n.ry-sine*dx+cosine*dy;
+        elasticMesh[i+2]=mesh[i+2]*(1+n.bulge);
+        const edge=2*surfaceEdges[i/6],side=Math.hypot(mesh[i+3],mesh[i+4]);
+        elasticMesh[i+3]=side*edgeNormals[edge];
+        elasticMesh[i+4]=side*edgeNormals[edge+1];
+      }
+    }
+    gl.bindBuffer(gl.ARRAY_BUFFER,buffer);
+    gl.bufferSubData(gl.ARRAY_BUFFER,0,pose?elasticMesh:mesh);
+    meshDirty=!!pose;
+  }
+  let bouncePose = null;
   // Screen-space quaternion rotations avoid both angle limits and gimbal lock.
   const multiply=(a,b)=>[a[3]*b[0]+a[0]*b[3]+a[1]*b[2]-a[2]*b[1],a[3]*b[1]-a[0]*b[2]+a[1]*b[3]+a[2]*b[0],a[3]*b[2]+a[0]*b[1]-a[1]*b[0]+a[2]*b[3],a[3]*b[3]-a[0]*b[0]-a[1]*b[1]-a[2]*b[2]];
   const initial=normalize(multiply([Math.sin(.11),0,0,Math.cos(.11)],[0,Math.sin(-.18),0,Math.cos(-.18)]));
@@ -210,8 +250,9 @@ export function createSculpture(figure, { bouncy = false } = {}) {
     if (pose) {
       const roll=[0,0,Math.sin(pose.roll/2),Math.cos(pose.roll/2)];
       const tilt=multiply([Math.sin(pose.pitch/2),0,0,Math.cos(pose.pitch/2)],[0,Math.sin(pose.yaw/2),0,Math.cos(pose.yaw/2)]);
-      rotation=normalize(multiply(roll,multiply(tilt,orientation)));
+      rotation=multiply(roll,tilt);
     }
+    updateMesh(pose);
     gl.uniform2f(uniforms.uResolution,canvas.width,canvas.height); gl.uniformMatrix3fv(uniforms.uRotation,false,matrix(rotation));
     gl.uniform1f(uniforms.uScale,pose?.scale ?? 1);
     gl.uniform3f(uniforms.uBounce,pose?.x ?? 0,pose?.y ?? 0,pose?.z ?? 0);
@@ -233,7 +274,7 @@ export function createSculpture(figure, { bouncy = false } = {}) {
   }
   function sculptureFrame(time){
     frame=0;if(destroyed||lost||!visible||document.hidden)return;
-    const animate = bouncy && !motion.matches && activePointer===null;
+    const animate = bouncy && !motion.matches;
     if (bouncy && !motion.matches) bouncePose = bounce.step(animate && lastTime ? Math.min((time-lastTime)/1000,.05) : 0,canvas.width,canvas.height);
     lastTime = animate ? time : 0;
     let dot=orientation.reduce((sum,v,i)=>sum+v*target[i],0);
@@ -254,14 +295,36 @@ export function createSculpture(figure, { bouncy = false } = {}) {
     gl.bindFramebuffer(gl.FRAMEBUFFER,null);wake();
   }
   function rotate(dx,dy){const length=Math.hypot(dx,dy);if(!length)return;const angle=length*.008,s=Math.sin(angle/2)/length;target=normalize(multiply([dy*s,dx*s,0,Math.cos(angle/2)],target));wake();}
-  function move(e){if(activePointer!==e.pointerId)return;throwX=e.clientX-lastX;throwY=e.clientY-lastY;rotate(throwX,throwY);lastX=e.clientX;lastY=e.clientY;}
-  function down(e){if(e.button!==0||activePointer!==null)return;activePointer=e.pointerId;throwX=throwY=0;lastX=e.clientX;lastY=e.clientY;canvas.setPointerCapture(e.pointerId);canvas.focus({preventScroll:true});host.classList.add('is-dragging');}
-  function release(e){if(activePointer!==e.pointerId)return;activePointer=null;if(canvas.hasPointerCapture(e.pointerId))canvas.releasePointerCapture(e.pointerId);host.classList.remove('is-dragging');if(bouncy&&!motion.matches&&e.type==='pointerup'){const rect=canvas.getBoundingClientRect();bounce.kick(throwX/Math.max(1,rect.width),-throwY/Math.max(1,rect.height));}throwX=throwY=0;lastTime=0;wake();}
+  function pointer(e){
+    const rect=canvas.getBoundingClientRect();
+    return [(e.clientX-rect.left-rect.width/2)*canvas.width/rect.width,
+            (rect.height/2-e.clientY+rect.top)*canvas.height/rect.height,e.timeStamp];
+  }
+  function move(e){
+    if(activePointer!==e.pointerId)return;
+    if(bouncy&&!motion.matches)bounce.move(...pointer(e));
+    else rotate(e.clientX-lastX,e.clientY-lastY);
+    lastX=e.clientX;lastY=e.clientY;
+  }
+  function down(e){
+    if(e.button!==0||activePointer!==null)return;
+    if(bouncy&&!motion.matches&&!bounce.grab(...pointer(e)))return;
+    activePointer=e.pointerId;lastX=e.clientX;lastY=e.clientY;
+    canvas.setPointerCapture(e.pointerId);canvas.focus({preventScroll:true});host.classList.add('is-dragging');wake();
+  }
+  function release(e){
+    if(activePointer!==e.pointerId)return;
+    activePointer=null;
+    if(e.type==='pointerup')bounce.move(...pointer(e));
+    bounce.release(e.type==='pointerup');
+    if(canvas.hasPointerCapture(e.pointerId))canvas.releasePointerCapture(e.pointerId);
+    host.classList.remove('is-dragging');wake();
+  }
   function reset(){target=[...initial];bounce.reset();lastTime=0;wake();}
-  function keys(e){if(!['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','Home'].includes(e.key))return;e.preventDefault();if(e.key==='Home')reset();else rotate((e.key==='ArrowRight'?1:e.key==='ArrowLeft'?-1:0)*20,(e.key==='ArrowDown'?1:e.key==='ArrowUp'?-1:0)*20);}
+  function keys(e){if(bouncy&&!motion.matches&&e.key.startsWith('Arrow')){e.preventDefault();bounce.nudge(e.key);wake();return;}if(!['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','Home'].includes(e.key))return;e.preventDefault();if(e.key==='Home')reset();else rotate((e.key==='ArrowRight'?1:e.key==='ArrowLeft'?-1:0)*20,(e.key==='ArrowDown'?1:e.key==='ArrowUp'?-1:0)*20);}
   function choose(e){const button=e.target.closest('[data-material]');if(!button)return;material={metal:0,glass:1,liquid:2,light:3}[button.dataset.material];host.querySelectorAll('[data-material]').forEach(b=>b.setAttribute('aria-pressed',String(b===button)));wake();}
   function visibility(){if(document.hidden)stop();else wake();}
-  function reduced(){stop();orientation=[...target];wake();}
+  function reduced(){updateHint();bounce.release(false);stop();orientation=[...target];wake();}
   function contextLost(e){e.preventDefault();lost=true;stop();host.querySelector('.sculpture-status').hidden=false;}
   function contextRestored(){try{resources();lost=false;resize();host.querySelector('.sculpture-status').hidden=true;}catch{host.querySelector('.sculpture-status').textContent=en?'Please toggle the sculpture off and on to retry.':'Bitte die Skulptur aus- und wieder einschalten.';}}
   canvas.addEventListener('pointermove',move,{passive:true});canvas.addEventListener('pointerdown',down);canvas.addEventListener('pointerup',release);canvas.addEventListener('pointercancel',release);canvas.addEventListener('lostpointercapture',release);canvas.addEventListener('keydown',keys);
@@ -269,66 +332,193 @@ export function createSculpture(figure, { bouncy = false } = {}) {
   document.addEventListener('visibilitychange',visibility);motion.addEventListener('change',reduced);
   const ro=new ResizeObserver(resize);ro.observe(host);
   const io=new IntersectionObserver(entries=>{visible=entries[0].isIntersecting;if(visible)wake();else stop();});io.observe(figure);
-  function updateHint(){host.querySelector('.sculpture-hint').textContent=bouncy?(en?'DRAG TO ROTATE & NUDGE · 360°':'ZIEHEN ZUM DREHEN & ANSTOSSEN · 360°'):(en?'DRAG TO ROTATE 360° · ↑ ↓ ← →':'ZIEHEN ZUM DREHEN · 360° · ↑ ↓ ← →');}
+  function updateHint(){
+    canvas.setAttribute('aria-label',bouncy&&!motion.matches
+      ? (en?'Soft M sculpture. Grab and throw it, or use the arrow keys to nudge it.':'Weiche M-Skulptur. Greifen und werfen oder mit den Pfeiltasten anstoßen.')
+      : (en?'Interactive M sculpture. Drag or use arrow keys to rotate.':'Interaktive M-Skulptur. Ziehen oder mit den Pfeiltasten drehen.'));
+    host.querySelector('.sculpture-hint').textContent=bouncy&&!motion.matches?(en?'GRAB THE M · DRAG & THROW':'M GREIFEN · ZIEHEN & WERFEN'):(en?'DRAG TO ROTATE 360° · ↑ ↓ ← →':'ZIEHEN ZUM DREHEN · 360° · ↑ ↓ ← →');}
   updateHint();resize();
   return {setBouncy(value){if(bouncy===value)return;bouncy=value;updateHint();bounce.reset();bouncePose=null;lastTime=0;wake();},destroy(){destroyed=true;stop();ro.disconnect();io.disconnect();document.removeEventListener('visibilitychange',visibility);motion.removeEventListener('change',reduced);canvas.removeEventListener('webglcontextlost',contextLost);canvas.removeEventListener('webglcontextrestored',contextRestored);dispose();gl.getExtension('WEBGL_lose_context')?.loseContext();host.remove();figure.classList.remove('sculpture-active');canvas.width=canvas.height=1;}};
 }
 
 
-// A bounded low-gravity body with sustained, impact-dependent impulses.
-// Broad-phase sphere bounds protect every user-selected orientation and material.
-export function createBounceSimulation(random = Math.random) {
-  let x=0,y=0,vx=0,vy=0,z=0,vz=0,roll=0,spin=.38,pitch=0,yaw=0,tiltVelocity=0;
-  let squash=0,squashVelocity=0,width=0,height=0,ready=false;
-  const clamp=(v,lo,hi)=>Math.max(lo,Math.min(hi,v));
-  function reset(){ready=false;z=vz=roll=pitch=yaw=tiltVelocity=squash=squashVelocity=0;spin=.38;}
-  function kick(dx,dy){
-    if(!ready||(!dx&&!dy))return;
-    vx=clamp(vx+clamp(dx,-.3,.3)*width*1.8,-width*.52,width*.52);
-    vy=clamp(vy+clamp(dy,-.3,.3)*height*1.8,-height*.55,height*.55);
-    spin=clamp(spin-dx*3.5,-1.3,1.3);tiltVelocity+=clamp(dx,-.25,.25)*.8;
+// Each corner carries mass. Shape matching restores the outline while allowing
+// individual feet and shoulders to lag, compress and recoil on contact.
+export function createSoftBody(outline, faces, random=Math.random){
+  const nodes=outline.map(([rx,ry])=>({rx,ry,x:0,y:0,vx:0,vy:0,bulge:0}));
+  const mean=key=>nodes.reduce((sum,n)=>sum+n[key],0)/nodes.length;
+  const ox=mean('rx'),oy=mean('ry');
+  let width=0,height=0,unit=1,hold=null,trail=[],grounded=false;
+  let floor,roof,left,right;
+  let rebound=0,contactCooldown=0,previousWalls=0;
+  function dimensions(w,h){
+    const newUnit=Math.max(1,Math.min(w*.11,h*.112));
+    for(const n of nodes){
+      if(width){
+        n.x*=w/width;n.y*=h/height;n.vx*=w/width;n.vy*=h/height;
+      }else{
+        n.x=n.rx*newUnit;n.y=n.ry*newUnit;
+        n.vx=w*.18-n.ry*newUnit*.3;n.vy=h*.20+n.rx*newUnit*.3;
+      }
+    }
+    hold=null;previousWalls=0;unit=newUnit;width=w;height=h;
+    left=-w*.43;right=w*.43;roof=h*.29;floor=-h*.25;
+  }
+  function frame(){
+    const x=mean('x'),y=mean('y');
+    let cross=0,dot=0;
+    for(const n of nodes){
+      const dx=n.rx-ox,dy=n.ry-oy;
+      cross+=dx*(n.y-y)-dy*(n.x-x);dot+=dx*(n.x-x)+dy*(n.y-y);
+    }
+    return {x,y,roll:Math.atan2(cross,dot)};
+  }
+  function tick(dt){
+    const {x,y,roll}=frame(),c=Math.cos(roll),s=Math.sin(roll);
+    const vx=mean('vx'),vy=mean('vy');
+    let inertia=0,momentum=0;
+    for(const n of nodes){
+      const dx=n.x-x,dy=n.y-y;
+      inertia+=dx*dx+dy*dy;momentum+=dx*(n.vy-vy)-dy*(n.vx-vx);
+    }
+    const spin=momentum/Math.max(1,inertia);
+    contactCooldown=Math.max(0,contactCooldown-dt);
+    const push=rebound*(1-Math.exp(-dt*28));
+    rebound-=push;
+    for(const n of nodes){
+      const dx=n.rx-ox,dy=n.ry-oy;
+      const ex=x+unit*(c*dx-s*dy)-n.x,ey=y+unit*(s*dx+c*dy)-n.y;
+      const stiffness=n.ry<-.9||Math.abs(n.rx)<.1?212:242;
+      n.vx+=(stiffness*ex-7*(n.vx-vx+spin*(n.y-y)))*dt;
+      n.vy+=(stiffness*ey-8*(n.vy-vy-spin*(n.x-x))-height*.28)*dt+push;
+      n.bulge=Math.min(.23,Math.hypot(ex,ey)/unit*.4);
+    }
+    if(hold){
+      const {ids,weights}=hold;
+      const at=key=>ids.reduce((v,id,i)=>v+weights[i]*nodes[id][key],0);
+      const limit=unit*90;
+      const spring=(axis,velocity)=>Math.max(-limit,Math.min(limit,(hold[axis]-at(axis))*620-at(velocity)*21));
+      const ax=spring('x','vx'),ay=spring('y','vy');
+      ids.forEach((id,i)=>{nodes[id].vx+=weights[i]*ax*dt;nodes[id].vy+=weights[i]*ay*dt;});
+    }
+    let contact=false,walls=0;
+    for(const n of nodes){
+      n.x+=n.vx*dt;n.y+=n.vy*dt;
+      if(n.x<left||n.x>right){walls|=n.x<left?1:2;n.vx=(n.x<left?1:-1)*Math.abs(n.vx)*.32;n.x=Math.max(left,Math.min(right,n.x));}
+      if(n.y>roof){walls|=4;n.y=roof;n.vy=-Math.abs(n.vy)*.32;}
+      if(n.y<=floor){walls|=8;n.y=floor;n.vy=Math.abs(n.vy)*.32;n.vx*=.91;contact=true;}
+    }
+    // Share the impact across the silhouette. At a corner the two incoming
+    // velocity components define one compression axis and one sideways bulge.
+    const entered=walls&~previousWalls;
+    previousWalls=walls;
+    const hitX=(entered&1)?Math.max(0,-vx):(entered&2)?-Math.max(0,vx):0;
+    const hitY=(entered&4)?-Math.max(0,vy):(entered&8)?Math.max(0,-vy):0;
+    const speed=Math.hypot(hitX,hitY);
+    if(speed>unit*.35&&!hold){
+      const nx=hitX/speed,ny=hitY/speed;
+      const afterX=mean('vx'),afterY=mean('vy');
+      const rate=Math.min(3.6,speed/unit*.62);
+      // Load each leg where its tip actually touches. Its two foot vertices
+      // bend together about the shoulder, even when the letter is rotated.
+      const proximity=n=>{
+        const gapX=hitX>0?n.x-left:right-n.x;
+        const gapY=hitY>0?n.y-floor:roof-n.y;
+        const gap=Math.min(hitX?gapX:Infinity,hitY?gapY:Infinity);
+        return Math.exp(-Math.max(0,gap)/(unit*.32));
+      };
+      let leftFoot=0,rightFoot=0,crown=0;
+      for(const n of nodes){
+        const load=proximity(n);
+        if(n.ry<-.9&&n.rx<0)leftFoot=Math.max(leftFoot,load);
+        if(n.ry<-.9&&n.rx>0)rightFoot=Math.max(rightFoot,load);
+        if(n.ry>.9)crown=Math.max(crown,load);
+      }
+      const flex=Math.min(speed*.20,unit*1.35);
+      for(const n of nodes){
+        const dx=n.x-x,dy=n.y-y,along=dx*nx+dy*ny;
+        if(hitX)n.vx=-vx*.50+.28*(n.vx-afterX)-.72*spin*dy;
+        if(hitY)n.vy=-vy*.50+.28*(n.vy-afterY)+.72*spin*dx;
+        n.vx+=rate*(.45*dx-1.45*along*nx);
+        n.vy+=rate*(.45*dy-1.45*along*ny);
+        const legLoad=n.rx<0?leftFoot:rightFoot;
+        const bend=n.ry<-.9?-Math.sign(n.rx)*legLoad*flex:0;
+        const fold=Math.abs(n.rx)<.1?-crown*flex*.65:0;
+        n.vx+=c*bend-s*fold;
+        n.vy+=s*bend+c*fold;
+      }
+    }
+    // A compliant floor replenishes energy once per landing. The contacting
+    // corners already received their individual impulses, generating torque.
+    if(contact&&!grounded&&!hold&&contactCooldown===0){
+      const launch=Math.min(height*.54,Math.hypot(Math.min(0,vy)*.76,height*(.29+.09*random())));
+      const impulse=Math.max(0,launch-mean('vy')),side=(random()-.5)*height*.12;
+      rebound=impulse;contactCooldown=.16;
+      for(const n of nodes)n.vx+=side;
+    }
+    grounded=contact;
+  }
+  function move(x,y,t){
+    if(!hold)return;
+    hold.x=Math.max(left,Math.min(right,x));hold.y=Math.max(floor,Math.min(roof,y));
+    trail.push({x:hold.x,y:hold.y,t});
+    while(trail.length>1&&trail[0].t<t-110)trail.shift();
+  }
+  function grab(x,y,t){
+    if(!width)return false;
+    for(const ids of faces){
+      const [a,b,c]=ids.map(i=>nodes[i]);
+      const det=(b.y-c.y)*(a.x-c.x)+(c.x-b.x)*(a.y-c.y);
+      if(Math.abs(det)<.01)continue;
+      const u=((b.y-c.y)*(x-c.x)+(c.x-b.x)*(y-c.y))/det;
+      const v=((c.y-a.y)*(x-c.x)+(a.x-c.x)*(y-c.y))/det;
+      if(Math.min(u,v,1-u-v)<-.02)continue;
+      hold={ids,weights:[u,v,1-u-v],x,y};trail=[];move(x,y,t);return true;
+    }
+    // The bevel and depth extend a few pixels beyond the front contour.
+    let best=null,distance=unit*.20;
+    nodes.forEach((a,i)=>{
+      const j=(i+1)%nodes.length,b=nodes[j],dx=b.x-a.x,dy=b.y-a.y;
+      const f=Math.max(0,Math.min(1,((x-a.x)*dx+(y-a.y)*dy)/(dx*dx+dy*dy||1)));
+      const d=Math.hypot(a.x+f*dx-x,a.y+f*dy-y);
+      if(d<distance){distance=d;best={ids:[i,j],weights:[1-f,f],x,y};}
+    });
+    if(best){hold=best;trail=[];move(x,y,t);}
+    return !!best;
+  }
+  function release(throwing){
+    if(hold&&throwing&&trail.length>1){
+      const first=trail[0],last=trail.at(-1),seconds=Math.max(.016,(last.t-first.t)/1000);
+      const limit=height*1.7;
+      for(const [axis,vel] of [['x','vx'],['y','vy']]){
+        const speed=Math.max(-limit,Math.min(limit,(last[axis]-first[axis])/seconds));
+        const change=(speed-mean(vel))*.7;
+        for(const n of nodes)n[vel]+=change;
+      }
+    }
+    hold=null;trail=[];
   }
   function step(dt,w,h){
-    const top=Math.min(72,h*.20),bottom=Math.min(90,h*.24),rim=w*.055;
-    // Keep the previous M size while opening a taller flight path around it.
-    const radius=Math.min(w*.20,Math.max(1,h-Math.min(86,h*.22)-Math.min(98,h*.25))*.34);
-    const left=-w/2+rim+radius,right=w/2-rim-radius;
-    const floor=-h/2+bottom+radius,ceiling=h/2-top-radius;
-    const travel=Math.max(1,ceiling-floor),gravity=h*.25,unit=Math.min(w,h);
-    if(!ready){x=0;y=floor+travel*.35;vx=unit*.29;vy=Math.sqrt(2*gravity*travel*.65);ready=true;}
-    if(width && (width!==w||height!==h)){x*=w/width;y*=h/height;vx*=w/width;vy*=h/height;}
-    width=w;height=h;x=clamp(x,left,right);y=clamp(y,floor,ceiling);
-    let remaining=clamp(dt,0,.05);
-    function impact(speed,direction){
-      const strength=clamp(speed/Math.sqrt(2*gravity*travel),.15,1.4);
-      squashVelocity+=direction*strength*1.12;
-      spin=clamp(spin*.68+(random()-.5)*strength*1.05+vx/unit*.55,-1.1,1.1);
-      tiltVelocity+= (random()-.5)*strength*.6;
-      vz=clamp(vz+(random()-.5)*strength*.18,-.17,.17);
+    if(w!==width||h!==height)dimensions(w,h);
+    let remaining=Math.min(.05,Math.max(0,dt));
+    while(remaining>1e-8){const d=Math.min(remaining,1/180);tick(d);remaining-=d;}
+    const {x,y,roll}=frame();
+    const lowest=nodes.reduce((min,node)=>Math.min(min,node.y),Infinity);
+    const lift=Math.max(0,Math.min(1,(lowest-floor)/Math.max(1,roof-floor-2*unit)));
+    let weightSum=0,weightedX=0;
+    for(const node of nodes){
+      const weight=Math.exp(-(node.y-lowest)/(.25*unit));
+      weightedX+=node.x*weight;weightSum+=weight;
     }
-    while(remaining>1e-7){
-      const d=Math.min(remaining,1/120);remaining-=d;
-      vy-=gravity*d;x+=vx*d;y+=vy*d;
-      if(y<floor){
-        const speed=-vy;y=floor;
-        // Restitution depends on incoming energy; a small bounded kick keeps it alive.
-        vy=clamp(Math.sqrt(speed*speed*.62+2*gravity*travel*(.18+random()*.36)),Math.sqrt(2*gravity*travel*.72),Math.sqrt(2*gravity*travel*1.10));
-        vx=clamp(vx*.72+(random()-.5)*unit*.48,-unit*.43,unit*.43);
-        if(Math.abs(vx)<unit*.13)vx=(vx<0?-1:1)*unit*(.16+random()*.08);
-        impact(speed,-1);
-      }
-      if(y>ceiling){const speed=vy;y=ceiling;vy=-Math.abs(vy)*(.88+random()*.08);impact(speed,-1);}
-      if(x<left||x>right){const speed=Math.abs(vx);x=clamp(x,left,right);vx=(x===left?1:-1)*Math.max(unit*.17,speed*(.88+random()*.10));vy+= (random()-.5)*h*.055;impact(speed,1);}
-      squashVelocity+=(-squash*115-squashVelocity*12)*d;
-      squash=clamp(squash+squashVelocity*d,-.12,.10);
-      spin*=Math.exp(-d*.055);roll=(roll+spin*d)%(Math.PI*2);
-      tiltVelocity+=(-yaw*4-tiltVelocity*2.4)*d;yaw=clamp(yaw+tiltVelocity*d,-.24,.24);
-      pitch=clamp(-vy/h*.4,-.12,.12);
-      vz+=(-z*3-vz*1.8)*d;z=clamp(z+vz*d,-.11,.11);
-    }
-    const lift=clamp((y-floor)/travel,0,1),sy=1+squash;
-    return {x,y,z,roll,pitch,yaw,scale:radius/(1.82*Math.min(w*.29,h*.24)),sx:1/Math.sqrt(sy),sy,
-      shadowX:.5+x/w,shadowY:.5+(floor-radius*.8)/h,height:lift};
+    const shadowX=(1-lift)*weightedX/weightSum+lift*x;
+    return {x,y,roll,unit,scale:unit/Math.min(w*.29,h*.24),pitch:.10,yaw:-.13,z:lift*.09,sx:1,sy:1,
+      shadowX:.5+shadowX/w,shadowY:.5+floor/h,height:lift};
   }
-  return {step,reset,kick};
+  function nudge(key){
+    for(const n of nodes){
+      if(key==='ArrowLeft')n.vx-=unit;if(key==='ArrowRight')n.vx+=unit;
+      if(key==='ArrowUp')n.vy+=unit;if(key==='ArrowDown')n.vy-=unit;
+    }
+  }
+  return {nodes,step,grab,move,release,nudge,reset(){width=0;hold=null;trail=[];grounded=false;rebound=0;contactCooldown=0;}};
 }
